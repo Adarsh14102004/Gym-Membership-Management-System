@@ -2,15 +2,685 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Membership Management System</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FITZONE GYM – Gym Membership Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-G8O5dKkXKDXgg7AQXy5t5LuL6iaUnl8xvL6pqDNE5QxS5xG7W1mMjdYazZ7HIdJCBYbC4zCc1owZDtq8vi2wdA==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
 </head>
 
 <body>
+    <div class="page-wrapper">
+        <!-- Navigation Bar -->
+        <header class="header">
+            <nav class="navbar">
+                <a href="#home" class="brand">
+                    <span class="logo-mark">F</span>
+                    <span class="brand-title">
+              <span>FITZONE</span>
+                    <strong>GYM</strong>
+                    </span>
+                </a>
+                <div class="nav-links">
+                    <a href="#home">Home</a>
+                    <a href="#about">About</a>
+                    <a href="#membership">Membership Plans</a>
+                    <a href="#trainers">Trainers</a>
+                    <a href="#classes">Classes</a>
+                    <a href="#progress">Progress Tracking</a>
+                    <a href="#gallery">Gallery</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </nav>
+        </header>
 
-    <p>Gym Membership Management System</p>
+        <main>
+            <!-- Hero Section -->
+            <section class="hero" id="home">
+                <div class="hero-content fade-in-up">
+                    <span>Elite Fitness Studio</span>
+                    <h1>Transform Your Body, Transform Your Life</h1>
+                    <p>
+                        FITZONE GYM is the premium destination for members seeking next-level performance, professional coaching, and lasting wellness results.
+                    </p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" href="#membership">Join Now</a>
+                        <a class="btn btn-secondary" href="#about">Explore Plans</a>
+                    </div>
+                </div>
+            </section>
 
+            <!-- About Gym Section -->
+            <section class="about" id="about">
+                <div class="section-heading fade-in-up">
+                    <h2>About FITZONE</h2>
+                </div>
+                <div class="about-grid section-grid">
+                    <div class="about-intro fade-in-up delay-1">
+                        <h3>Modern training, structured progress, and powerful community energy.</h3>
+                        <p class="section-intro">
+                            FITZONE GYM is built for athletes, professionals, and everyday champions. We blend modern equipment, premium guidance, and a results-driven environment to help you hit every milestone.
+                        </p>
+                        <div class="about-list">
+                            <div class="feature-card">
+                                <i class="fa-solid fa-dumbbell"></i>
+                                <div>
+                                    <h4>State-of-the-art equipment</h4>
+                                    <p>Access premium gear across strength, cardio, and functional zones.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                <div>
+                                    <h4>Science-backed training</h4>
+                                    <p>Programs designed for every phase of your fitness journey.</p>
+                                </div>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fa-solid fa-users"></i>
+                                <div>
+                                    <h4>Community motivation</h4>
+                                    <p>Join a supportive community of members and certified coaches.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card fade-in-up delay-2">
+                        <div class="section-heading">
+                            <h2>Mission & Vision</h2>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-bullseye"></i>
+                            <div>
+                                <h4>Our Mission</h4>
+                                <p>
+                                    Empower members to build stronger bodies, higher energy, and a confident mindset every day.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-eye"></i>
+                            <div>
+                                <h4>Our Vision</h4>
+                                <p>
+                                    Become the most trusted destination for premium fitness care and transformational results.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-star"></i>
+                            <div>
+                                <h4>Why FITZONE</h4>
+                                <p>
+                                    Personal coaching, clean facilities, and an immersive membership experience designed to deliver performance.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Membership Plans Section -->
+            <section class="plans" id="membership">
+                <div class="section-heading fade-in-up">
+                    <h2>Membership Plans</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Choose a membership that fits your goals, schedule, and training level. Every plan includes access to classes, expert support, and premium amenities.
+                </p>
+                <div class="plan-grid section-grid fade-in-up delay-2">
+                    <article class="plan-card">
+                        <h3>Basic Plan</h3>
+                        <div class="plan-price">
+                            $29<span>/mo</span>
+                        </div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i>Unlimited gym access</li>
+                            <li><i class="fa-solid fa-check"></i>Group classes 3x per week</li>
+                            <li><i class="fa-solid fa-check"></i>Locker access</li>
+                            <li><i class="fa-solid fa-check"></i>Wellness community app</li>
+                        </ul>
+                        <a class="btn btn-secondary" href="#contact">Join Now</a>
+                    </article>
+                    <article class="plan-card popular">
+                        <h3>Standard Plan</h3>
+                        <div class="plan-price">
+                            $49<span>/mo</span>
+                        </div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i>All Basic benefits</li>
+                            <li><i class="fa-solid fa-check"></i>Weekly trainer sessions</li>
+                            <li><i class="fa-solid fa-check"></i>Nutrition guidance</li>
+                            <li><i class="fa-solid fa-check"></i>Performance tracking</li>
+                        </ul>
+                        <a class="btn btn-primary" href="#contact">Join Now</a>
+                    </article>
+                    <article class="plan-card">
+                        <h3>Premium Plan</h3>
+                        <div class="plan-price">
+                            $79<span>/mo</span>
+                        </div>
+                        <ul>
+                            <li><i class="fa-solid fa-check"></i>Unlimited premium access</li>
+                            <li><i class="fa-solid fa-check"></i>Personal coaching plan</li>
+                            <li><i class="fa-solid fa-check"></i>Priority booking</li>
+                            <li><i class="fa-solid fa-check"></i>Exclusive workshops</li>
+                        </ul>
+                        <a class="btn btn-secondary" href="#contact">Join Now</a>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Class Schedule Section -->
+            <section class="schedule" id="classes">
+                <div class="section-heading fade-in-up">
+                    <h2>Class Schedule</h2>
+                </div>
+                <div class="schedule-grid section-grid fade-in-up delay-1">
+                    <div class="schedule-info">
+                        <h3>Weekly Training Sessions</h3>
+                        <p class="section-intro">
+                            Discover classes tailored for every energy level. Our schedule blends flexibility with structure so you can book the right workout day after day.
+                        </p>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-spa"></i>
+                            <div>
+                                <h4>Yoga</h4>
+                                <p>Flexibility, breath control, and balance for recovery days.</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-music"></i>
+                            <div>
+                                <h4>Zumba</h4>
+                                <p>Cardio dance that keeps energy high and calories burning.</p>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                            <div>
+                                <h4>HIIT</h4>
+                                <p>High-intensity interval training for fast strength and stamina gains.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Time</th>
+                                    <th>Instructor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Yoga</td>
+                                    <td>Mon 7:00 AM</td>
+                                    <td>Ayla Reed</td>
+                                </tr>
+                                <tr>
+                                    <td>Zumba</td>
+                                    <td>Tue 6:00 PM</td>
+                                    <td>Kai Morgan</td>
+                                </tr>
+                                <tr>
+                                    <td>Cardio</td>
+                                    <td>Wed 5:30 PM</td>
+                                    <td>Lena Park</td>
+                                </tr>
+                                <tr>
+                                    <td>Strength Training</td>
+                                    <td>Thu 7:30 AM</td>
+                                    <td>Max Holt</td>
+                                </tr>
+                                <tr>
+                                    <td>CrossFit</td>
+                                    <td>Fri 6:30 PM</td>
+                                    <td>Nora Lee</td>
+                                </tr>
+                                <tr>
+                                    <td>HIIT</td>
+                                    <td>Sat 9:00 AM</td>
+                                    <td>Riley King</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trainer Section -->
+            <section class="trainers" id="trainers">
+                <div class="section-heading fade-in-up">
+                    <h2>Meet Our Trainers</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Certified experts help you build confidence, refine form, and maintain a consistent momentum through every workout.
+                </p>
+                <div class="trainer-grid section-grid fade-in-up delay-2">
+                    <article class="trainer-card">
+                        <div class="trainer-image" style="background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80');">
+                            <div class="trainer-avatar">A</div>
+                        </div>
+                        <div class="trainer-details">
+                            <h4>Amy Carter</h4>
+                            <p>Strength Specialist</p>
+                            <div class="trainer-meta">
+                                <span>8 yrs exp</span>
+                                <span>Powerlifting</span>
+                            </div>
+                            <a class="btn btn-secondary" href="#contact">Contact</a>
+                        </div>
+                    </article>
+                    <article class="trainer-card">
+                        <div class="trainer-image" style="background-image: url('https://images.unsplash.com/photo-1526403220170-9f1818453410?auto=format&fit=crop&w=900&q=80');">
+                            <div class="trainer-avatar">M</div>
+                        </div>
+                        <div class="trainer-details">
+                            <h4>Mark Ellis</h4>
+                            <p>Cardio Coach</p>
+                            <div class="trainer-meta">
+                                <span>10 yrs exp</span>
+                                <span>Performance</span>
+                            </div>
+                            <a class="btn btn-secondary" href="#contact">Contact</a>
+                        </div>
+                    </article>
+                    <article class="trainer-card">
+                        <div class="trainer-image" style="background-image: url('https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?auto=format&fit=crop&w=900&q=80');">
+                            <div class="trainer-avatar">N</div>
+                        </div>
+                        <div class="trainer-details">
+                            <h4>Nina Brooks</h4>
+                            <p>Wellness Expert</p>
+                            <div class="trainer-meta">
+                                <span>7 yrs exp</span>
+                                <span>Nutrition</span>
+                            </div>
+                            <a class="btn btn-secondary" href="#contact">Contact</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Workout Plans Section -->
+            <section class="workout" id="workout">
+                <div class="section-heading fade-in-up">
+                    <h2>Workout Plans</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Programs built for progress at every level. Start with the fundamentals, then challenge yourself with elevated routines.
+                </p>
+                <div class="workout-grid section-grid fade-in-up delay-2">
+                    <article class="workout-card" style="background-image: linear-gradient(180deg, rgba(255,87,94,0.84), rgba(22,18,29,0.88)), url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80');">
+                        <div class="workout-content">
+                            <span class="badge">Beginner Plan</span>
+                            <h4>Foundations</h4>
+                            <p>Low-impact training for new members to build confidence and strength.</p>
+                        </div>
+                    </article>
+                    <article class="workout-card" style="background-image: linear-gradient(180deg, rgba(255,122,24,0.84), rgba(22,18,29,0.9)), url('https://images.unsplash.com/photo-1517960413843-0aee8e2b1b4d?auto=format&fit=crop&w=900&q=80');">
+                        <div class="workout-content">
+                            <span class="badge">Intermediate Plan</span>
+                            <h4>Progression</h4>
+                            <p>Balanced routines that level-up strength, endurance, and mobility.</p>
+                        </div>
+                    </article>
+                    <article class="workout-card" style="background-image: linear-gradient(180deg, rgba(255,59,63,0.84), rgba(22,18,29,0.96)), url('https://images.unsplash.com/photo-1526403220170-9f1818453410?auto=format&fit=crop&w=900&q=80');">
+                        <div class="workout-content">
+                            <span class="badge">Advanced Plan</span>
+                            <h4>Performance</h4>
+                            <p>High intensity cycles designed for peak performance and rapid gains.</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Progress Tracking Dashboard -->
+            <section class="progress" id="progress">
+                <div class="section-heading fade-in-up">
+                    <h2>Progress Tracking</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Monitor progress in one beautiful dashboard: metrics, goals, energy trends, and daily attendance all designed to keep you accountable.
+                </p>
+                <div class="progress-grid section-grid fade-in-up delay-2">
+                    <article class="stat-card">
+                        <h4>Weight Tracking</h4>
+                        <strong>72kg</strong>
+                        <p>Current weight with weekly trend highlights and performance focus.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>BMI Tracking</h4>
+                        <strong>22.4</strong>
+                        <p>Maintain healthy body composition while improving strength.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Calories Burned</h4>
+                        <strong>1,540</strong>
+                        <p>Calories tracked from workouts, classes, and active recovery.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Attendance</h4>
+                        <strong>18 / 20</strong>
+                        <p>Weekly check-ins and attendance consistency for fast progress.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Goal Completion</h4>
+                        <strong>92%</strong>
+                        <p>Progress towards monthly targets and milestones.</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- QR Code Check-In Section -->
+            <section class="qrcheck" id="attendance">
+                <div class="section-heading fade-in-up">
+                    <h2>QR Code Check-In</h2>
+                </div>
+                <div class="qr-section section-grid fade-in-up delay-1">
+                    <div class="qr-card">
+                        <div class="qr-placeholder">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                    </div>
+                    <div class="qr-content">
+                        <h3>Smart Attendance Tracking</h3>
+                        <p>
+                            Scan in quickly and securely at the gym entrance. QR-based check-in keeps attendance accurate and rewards consistent training habits.
+                        </p>
+                        <ul class="feature-card" style="grid-template-columns: 1fr; padding: 0; background: transparent; border: none; box-shadow: none;">
+                            <li style="display:flex; align-items:flex-start; gap:14px; padding: 14px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <div>
+                                    <strong>Fast entry</strong>
+                                    <p style="margin:6px 0 0; color: var(--muted);">Swipe in without waiting and get straight into your workout.</p>
+                                </div>
+                            </li>
+                            <li style="display:flex; align-items:flex-start; gap:14px; padding: 14px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <i class="fa-solid fa-lock"></i>
+                                <div>
+                                    <strong>Secure access</strong>
+                                    <p style="margin:6px 0 0; color: var(--muted);">Attendance is logged with secure member-only verification.</p>
+                                </div>
+                            </li>
+                            <li style="display:flex; align-items:flex-start; gap:14px; padding: 14px 0;">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <div>
+                                    <strong>Attendance analytics</strong>
+                                    <p style="margin:6px 0 0; color: var(--muted);">Track your gym frequency and stay motivated with daily streaks.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nutrition Plans Section -->
+            <section class="nutrition" id="nutrition">
+                <div class="section-heading fade-in-up">
+                    <h2>Nutrition Plans</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Fuel your training with meal plans that support fat loss, muscle gain, and long-term healthy maintenance.
+                </p>
+                <div class="nutrition-grid section-grid fade-in-up delay-2">
+                    <article class="nutrition-card">
+                        <div class="nutrition-content">
+                            <h4>Weight Loss Diet</h4>
+                            <p>Lean proteins, high-fiber vegetables, and smart portion control for steady results.</p>
+                            <ul>
+                                <li><i class="fa-solid fa-check"></i>Calorie-smart meal structure</li>
+                                <li><i class="fa-solid fa-check"></i>Hydration guidance</li>
+                                <li><i class="fa-solid fa-check"></i>Supplement support</li>
+                            </ul>
+                        </div>
+                    </article>
+                    <article class="nutrition-card">
+                        <div class="nutrition-content">
+                            <h4>Muscle Gain Diet</h4>
+                            <p>Protein-forward meals designed for recovery, lean muscle growth, and energy balance.</p>
+                            <ul>
+                                <li><i class="fa-solid fa-check"></i>High-value nutrient timing</li>
+                                <li><i class="fa-solid fa-check"></i>Complex carbohydrates</li>
+                                <li><i class="fa-solid fa-check"></i>Healthy fats</li>
+                            </ul>
+                        </div>
+                    </article>
+                    <article class="nutrition-card">
+                        <div class="nutrition-content">
+                            <h4>Maintenance Diet</h4>
+                            <p>Balanced eating with sustainable macronutrients for long-term strength and health.</p>
+                            <ul>
+                                <li><i class="fa-solid fa-check"></i>Moderate energy intake</li>
+                                <li><i class="fa-solid fa-check"></i>Daily meal planning</li>
+                                <li><i class="fa-solid fa-check"></i>Smart snack options</li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Analytics Dashboard -->
+            <section class="analytics" id="analytics">
+                <div class="section-heading fade-in-up">
+                    <h2>Analytics Dashboard</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Track the health of your club with professional metrics built for administrators, coaches, and members alike.
+                </p>
+                <div class="analytics-grid section-grid fade-in-up delay-2">
+                    <article class="stat-card">
+                        <h4>Total Members</h4>
+                        <strong>1,380</strong>
+                        <p>Active members taking part in FITZONE training programs.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Active Members</h4>
+                        <strong>1,020</strong>
+                        <p>Members logged in and attending classes this week.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Revenue</h4>
+                        <strong>$57.4K</strong>
+                        <p>Membership and training revenue for the month.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Classes Booked</h4>
+                        <strong>248</strong>
+                        <p>Confirmed bookings for classes and training sessions.</p>
+                    </article>
+                    <article class="stat-card">
+                        <h4>Growth Rate</h4>
+                        <strong>18%</strong>
+                        <p>Monthly membership growth across all programs.</p>
+                    </article>
+                    <article class="analytics-chart">
+                        <div class="analytics-header">
+                            <h3>Membership Growth</h3>
+                            <span>Month-over-month performance</span>
+                        </div>
+                        <div class="chart-lines">
+                            <div class="chart-line">
+                                <span>New signups</span>
+                                <div class="chart-spark"></div>
+                            </div>
+                            <div class="chart-line">
+                                <span>Retention</span>
+                                <div class="chart-spark"></div>
+                            </div>
+                            <div class="chart-line">
+                                <span>Class bookings</span>
+                                <div class="chart-spark"></div>
+                            </div>
+                            <div class="chart-line">
+                                <span>Revenue growth</span>
+                                <div class="chart-spark"></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials" id="testimonials">
+                <div class="section-heading fade-in-up">
+                    <h2>What Members Say</h2>
+                </div>
+                <div class="testimonial-grid section-grid fade-in-up delay-1">
+                    <article class="testimonial-card">
+                        <p>
+                            FITZONE helped me find a training program that actually fits my busy schedule. The coaches are supportive and every session feels meaningful.
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">J</div>
+                            <div>
+                                <strong>Jessica Miller</strong>
+                                <p>Member since 2023</p>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="testimonial-card">
+                        <p>
+                            The premium environment and the progress tracking dashboard keep me accountable. I’ve never felt more confident in my training.
+                        </p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">D</div>
+                            <div>
+                                <strong>David Chen</strong>
+                                <p>Member since 2022</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Gallery Section -->
+            <section class="gallery" id="gallery">
+                <div class="section-heading fade-in-up">
+                    <h2>Gallery</h2>
+                </div>
+                <p class="section-intro fade-in-up delay-1">
+                    Browse our fitness space, training energy, and community moments in a responsive gallery layout.
+                </p>
+                <div class="gallery-grid section-grid fade-in-up delay-2">
+                    <article class="gallery-item">
+                        <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1526401485004-37e5f0a9afbd?auto=format&fit=crop&w=900&q=80');"></div>
+                        <div class="gallery-caption"><span>Training Floor</span></div>
+                    </article>
+                    <article class="gallery-item">
+                        <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1546484959-f7aa407af46e?auto=format&fit=crop&w=900&q=80');"></div>
+                        <div class="gallery-caption"><span>Group Classes</span></div>
+                    </article>
+                    <article class="gallery-item">
+                        <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1508606572321-901ea4437070?auto=format&fit=crop&w=900&q=80');"></div>
+                        <div class="gallery-caption"><span>Strength Zone</span></div>
+                    </article>
+                    <article class="gallery-item">
+                        <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1519532159707-8b606f7b7d5d?auto=format&fit=crop&w=900&q=80');"></div>
+                        <div class="gallery-caption"><span>High Energy</span></div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="contact" id="contact">
+                <div class="section-heading fade-in-up">
+                    <h2>Contact FITZONE</h2>
+                </div>
+                <div class="contact-grid section-grid fade-in-up delay-1">
+                    <div class="contact-card">
+                        <h3>Send us a message</h3>
+                        <form class="contact-form">
+                            <div class="field-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" name="name" placeholder="Enter your name" />
+                            </div>
+                            <div class="field-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" placeholder="Enter your email" />
+                            </div>
+                            <div class="field-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" name="phone" placeholder="Enter your phone" />
+                            </div>
+                            <div class="field-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" placeholder="Tell us how we can help"></textarea>
+                            </div>
+                            <a class="btn btn-primary" href="#home">Submit Message</a>
+                        </form>
+                    </div>
+                    <div class="contact-info">
+                        <div class="glass-card">
+                            <h3>Get in touch</h3>
+                            <p>
+                                Our team is ready to answer membership questions, schedule a tour, and help you choose the perfect plan.
+                            </p>
+                            <ul>
+                                <li><i class="fa-solid fa-phone"></i> +1 (555) 372-8490</li>
+                                <li><i class="fa-solid fa-envelope"></i> hello@fitzonegym.com</li>
+                                <li><i class="fa-solid fa-location-dot"></i> 82 Fitness Avenue, New York, NY</li>
+                            </ul>
+                        </div>
+                        <div class="glass-card">
+                            <h3>Opening Hours</h3>
+                            <ul>
+                                <li>Mon - Fri: 5:30 AM - 10:00 PM</li>
+                                <li>Sat: 7:00 AM - 8:00 PM</li>
+                                <li>Sun: 8:00 AM - 6:00 PM</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>FITZONE GYM</h4>
+                    <p>
+                        The next generation gym experience built for those who want to train smarter, recover better, and thrive every day.
+                    </p>
+                    <div class="social-list">
+                        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#membership">Membership</a></li>
+                        <li><a href="#trainers">Trainers</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact Details</h4>
+                    <ul class="footer-details">
+                        <li><i class="fa-solid fa-phone"></i> +1 (555) 372-8490</li>
+                        <li><i class="fa-solid fa-envelope"></i> support@fitzonegym.com</li>
+                        <li><i class="fa-solid fa-location-dot"></i> 82 Fitness Avenue, New York</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 FITZONE GYM. All rights reserved.</span>
+                <span>Designed for premium wellness and modern fitness communities.</span>
+            </div>
+        </footer>
+    </div>
 </body>
 
 </html>
