@@ -144,9 +144,7 @@ button {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(7, 8, 9, 0.2) 0%, rgba(7, 8, 9, 0.85) 100%), url('https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=1400&q=80') center/cover no-repeat;
-    filter: brightness(0.72);
-    z-index: -2;
+    background: linear-gradient(180deg, rgba(7, 8, 9, 0.2) 0%, rgba(7, 8, 9, 0.85) 100%), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80');
 }
 
 .hero::after {
