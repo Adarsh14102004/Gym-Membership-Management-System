@@ -1146,8 +1146,19 @@ button {
 .workout-card h4,
 .nutrition-card h4 {
     animation: fadeInUp 0.8s ease both;
+    -webkit-animation: fadeInUp 0.8s ease both;
 }
 
 .chart-spark::after {
     animation: shine 2.5s linear infinite;
+    -webkit-animation: shine 2.5s linear infinite;
+}
+
+
+/*
+*/
+
+.nav-links a.active {
+    color: #ff3b3f;
+    font-weight: 600;
 }
