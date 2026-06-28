@@ -81,3 +81,49 @@ document.querySelector(".contact-form").addEventListener("submit", function(e) {
 
     this.reset();
 });
+/* ===========================
+      LOADING SCREEN
+=========================== */
+
+window.addEventListener("load", function() {
+
+    const loader = document.getElementById("loader");
+
+    // Website 2 second tak loading screen dikhayegi
+    setTimeout(function() {
+
+        loader.style.opacity = "0";
+        loader.style.transition = "opacity 0.8s ease";
+
+        // Fade hone ke baad loader remove
+        setTimeout(function() {
+            loader.style.display = "none";
+        }, 800);
+
+    }, 2000);
+
+});
+/* ===========================
+      BACK TO TOP BUTTON
+=========================== */
+
+const topBtn = document.getElementById("topBtn");
+
+window.addEventListener("scroll", function() {
+
+    if (window.scrollY > 300) {
+        topBtn.style.display = "block";
+    } else {
+        topBtn.style.display = "none";
+    }
+
+});
+
+topBtn.addEventListener("click", function() {
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+});

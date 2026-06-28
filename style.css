@@ -1162,3 +1162,111 @@ button {
     color: #ff3b3f;
     font-weight: 600;
 }
+
+
+/* ===========================
+       LOADING SCREEN
+=========================== */
+
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #070809;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-logo {
+    width: 90px;
+    height: 90px;
+    margin: auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff3b3f, #ff7a18);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    color: #fff;
+    animation: spin 2s linear infinite;
+}
+
+.loader-content h1 {
+    margin: 20px 0 10px;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.loader-content p {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.loading-bar {
+    width: 260px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff3b3f, #ff7a18);
+    animation: loading 2s linear forwards;
+}
+
+@keyframes loading {
+    0% {
+        width: 0%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ===========================
+      BACK TO TOP BUTTON
+=========================== */
+
+#topBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 55px;
+    height: 55px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff3b3f, #ff7a18);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: none;
+    z-index: 999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transition: all .3s ease;
+}
+
+#topBtn:hover {
+    transform: translateY(-5px) scale(1.08);
+    box-shadow: 0 15px 30px rgba(255, 59, 63, .4);
+}
