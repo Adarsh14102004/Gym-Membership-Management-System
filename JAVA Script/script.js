@@ -81,10 +81,8 @@ document.querySelector(".contact-form").addEventListener("submit", function(e) {
 
     this.reset();
 });
-/* ===========================
-      LOADING SCREEN
-=========================== */
 
+// LOADING SCREEN
 window.addEventListener("load", function() {
 
     const loader = document.getElementById("loader");
@@ -103,10 +101,8 @@ window.addEventListener("load", function() {
     }, 2000);
 
 });
-/* ===========================
-      BACK TO TOP BUTTON
-=========================== */
 
+// BACK TO TOP BUTTON
 const topBtn = document.getElementById("topBtn");
 
 window.addEventListener("scroll", function() {
