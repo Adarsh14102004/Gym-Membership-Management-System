@@ -123,3 +123,15 @@ topBtn.addEventListener("click", function() {
     });
 
 });
+//
+const loginForm = document.getElementById("loginForm");
+
+if (loginForm) {
+    loginForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        alert("Login Successful!");
+
+        window.location.href = "member-dashboard.html";
+    });
+}
