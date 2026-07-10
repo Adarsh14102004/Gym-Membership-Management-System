@@ -1,5 +1,4 @@
 // Smooth Scroll
-alert("JS Working");
 document.querySelector(".contact-form");
 document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', function(e) {
@@ -72,15 +71,19 @@ const runCounter = () => {
 
 window.addEventListener("load", runCounter);
 
-document.querySelector(".contact-form").addEventListener("submit", function(e) {
-    e.preventDefault();
+const contactForm = document.querySelector(".contact-form");
 
-    let name = document.getElementById("name").value;
+if (contactForm) {
+    contactForm.addEventListener("submit", function(e) {
+        e.preventDefault();
 
-    alert("Thank You " + name + "! Your message has been submitted.");
+        let name = document.getElementById("name").value;
 
-    this.reset();
-});
+        alert("Thank You " + name + "! Your message has been submitted.");
+
+        this.reset();
+    });
+}
 
 // LOADING SCREEN
 window.addEventListener("load", function() {
@@ -127,7 +130,7 @@ topBtn.addEventListener("click", function() {
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
+    loginForm.addEventListener("submit", function(e) {
         e.preventDefault();
 
         alert("Login Successful!");

@@ -4,16 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FITZONE GYM</title>
-
+    <title>Register - FITZONE GYM</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
-
-    <!-- Navigation Bar -->
     <header class="header">
         <nav class="navbar">
             <a href="index.html" class="brand">
@@ -23,7 +20,6 @@
                 <strong>GYM</strong>
                 </span>
             </a>
-
             <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="about.html">About</a>
@@ -37,57 +33,45 @@
                 <a href="analytics.html">Analytics</a>
                 <a href="gallery.html">Gallery</a>
                 <a href="contact.html">Contact</a>
-                <a href="login.html" class="active">Login</a>
-                <a href="register.html">Register</a>
+                <a href="login.html">Login</a>
+                <a href="register.html" class="active">Register</a>
                 <a href="admin-dashboard.html">Admin Dashboard</a>
             </div>
         </nav>
     </header>
 
-    <!-- Login Section -->
-
     <section class="login">
-
         <div class="login-card">
-
-            <h2>Member Login</h2>
-
-            <form>
-
+            <h2>Create Account</h2>
+            <form class="contact-form">
+                <div class="field-group">
+                    <label>Full Name</label>
+                    <input id="name" type="text" placeholder="Enter full name">
+                </div>
                 <div class="field-group">
                     <label>Email</label>
-                    <input type="email" placeholder="Enter Email">
+                    <input type="email" placeholder="Enter email">
                 </div>
-
                 <div class="field-group">
                     <label>Password</label>
-                    <input type="password" placeholder="Enter Password">
+                    <input type="password" placeholder="Enter password">
                 </div>
-
                 <button class="btn btn-primary" type="submit">
-                    Login
+                    Register
                 </button>
-
             </form>
-
             <p>
-                Don't have an account?
-                <a href="register.html">Register Now</a>
+                Already have an account?
+                <a href="login.html">Login</a>
             </p>
-
         </div>
-
     </section>
-
-    <!-- Footer -->
 
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-col">
                 <h4>FITZONE GYM</h4>
-                <p>
-                    The next generation gym experience built for those who want to train smarter, recover better, and thrive every day.
-                </p>
+                <p>The next generation gym experience built for those who want to train smarter, recover better, and thrive every day.</p>
                 <div class="social-list">
                     <a href="index.html"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="about.html"><i class="fa-brands fa-instagram"></i></a>
@@ -103,7 +87,6 @@
                     <li><a href="membership.html">Membership Plans</a></li>
                     <li><a href="trainers.html">Trainers</a></li>
                     <li><a href="contact.html">Contact</a></li>
-
                 </ul>
             </div>
             <div class="footer-col">
@@ -111,7 +94,7 @@
                 <ul class="footer-details">
                     <li><i class="fa-solid fa-phone"></i> +919793728490</li>
                     <li><i class="fa-solid fa-envelope"></i> support@fitzonegym.com</li>
-                    <li><i class="fa-solid fa-location-dot"></i> 82 Fitness Avenue, INDORE</li>
+                    <li><i class="fa-solid fa-location-dot"></i> Downtown Fitness Street</li>
                 </ul>
             </div>
         </div>
@@ -121,7 +104,6 @@
         </div>
     </footer>
     <script src="JAVA Script/script.js"></script>
-
 </body>
 
 </html>
