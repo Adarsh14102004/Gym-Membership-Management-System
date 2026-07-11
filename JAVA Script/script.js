@@ -71,20 +71,6 @@ const runCounter = () => {
 
 window.addEventListener("load", runCounter);
 
-const contactForm = document.querySelector(".contact-form");
-
-if (contactForm) {
-    contactForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-
-        let name = document.getElementById("name").value;
-
-        alert("Thank You " + name + "! Your message has been submitted.");
-
-        this.reset();
-    });
-}
-
 // LOADING SCREEN
 window.addEventListener("load", function() {
 
@@ -126,15 +112,101 @@ topBtn.addEventListener("click", function() {
     });
 
 });
-//
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
-    loginForm.addEventListener("submit", function(e) {
+    loginForm.addEventListener("submit", async function(e) {
         e.preventDefault();
 
-        alert("Login Successful!");
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const role = document.getElementById("loginRole").value;
 
-        window.location.href = "member-dashboard.html";
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, role })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
+            alert('Login Successful!');
+            window.location.href = role === 'admin' ? 'admin-dashboard.html' : 'member-dashboard.html';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+const registerForm = document.getElementById('registerForm');
+
+if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const body = {
+            full_name: document.getElementById('registerName').value,
+            email: document.getElementById('registerEmail').value,
+            phone: document.getElementById('registerPhone').value,
+            password: document.getElementById('registerPassword').value
+        };
+
+        try {
+            const response = await fetch('/api/members', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Registration failed');
+            }
+
+            alert('Registration successful! Please login.');
+            window.location.href = 'login.html';
+        } catch (error) {
+            alert(error.message);
+        }
+    });
+}
+
+const contactFormPage = document.getElementById('contactForm');
+
+if (contactFormPage) {
+    contactFormPage.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const body = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            message: document.getElementById('message').value
+        };
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Message could not be sent');
+            }
+
+            alert('Thank you! Your message has been saved.');
+            this.reset();
+        } catch (error) {
+            alert(error.message);
+        }
     });
 }

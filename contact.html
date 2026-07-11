@@ -50,14 +50,14 @@
         <div class="contact-grid section-grid fade-in-up delay-1">
             <div class="contact-card">
                 <h3>Send us a message</h3>
-                <form class="contact-form">
+                <form id="contactForm" class="contact-form">
                     <div class="field-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" placeholder="Enter your name" />
+                        <input type="text" id="name" name="name" placeholder="Enter your name" required />
                     </div>
                     <div class="field-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" />
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required />
                     </div>
                     <div class="field-group">
                         <label for="phone">Phone</label>
@@ -65,7 +65,7 @@
                     </div>
                     <div class="field-group">
                         <label for="message">Message</label>
-                        <textarea id="message" name="message" placeholder="Tell us how we can help"></textarea>
+                        <textarea id="message" name="message" placeholder="Tell us how we can help" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">
                                  Submit Message

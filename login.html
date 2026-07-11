@@ -52,16 +52,24 @@
 
             <h2>Member Login</h2>
 
-            <form>
+            <form id="loginForm">
 
                 <div class="field-group">
                     <label>Email</label>
-                    <input type="email" placeholder="Enter Email">
+                    <input id="loginEmail" type="email" placeholder="Enter Email" required>
                 </div>
 
                 <div class="field-group">
                     <label>Password</label>
-                    <input type="password" placeholder="Enter Password">
+                    <input id="loginPassword" type="password" placeholder="Enter Password" required>
+                </div>
+
+                <div class="field-group">
+                    <label>Login As</label>
+                    <select id="loginRole">
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </div>
 
                 <button class="btn btn-primary" type="submit">
