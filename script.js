@@ -1,4 +1,4 @@
-// Smooth Scroll
+// Smooth Scroll (Page ko smoothly scroll karne ke liye)
 // alert("JS Working");
 document.querySelector(".contact-form");
 document.querySelectorAll('a[href^="#"]').forEach(link => {
@@ -15,9 +15,7 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     });
 });
 
-
-
-// Active Navbar Link
+// Active Navbar Link (Current section ka navbar active dikhane ke liye)
 const sections = document.querySelectorAll("section");
 const navLinks = document.querySelectorAll(".nav-links a");
 
@@ -42,7 +40,7 @@ window.addEventListener("scroll", () => {
     });
 });
 
-// Counter Animation
+// Counter Animation (Numbers ko animation ke sath show karne ke liye)
 const counters = document.querySelectorAll(".stat-card strong");
 
 const runCounter = () => {
@@ -72,17 +70,26 @@ const runCounter = () => {
 
 window.addEventListener("load", runCounter);
 
+// Form Submit (Form ka data backend ko bhejne ke liye)
 document.querySelector(".contact-form").addEventListener("submit", async function(e) {
+
+    // Page reload hone se rokta hai
     e.preventDefault();
 
+    // Form ka data object me store karna
     const data = {
         name: document.getElementById("name").value,
         email: document.getElementById("email").value,
         phone: document.getElementById("phone").value,
+        membership_plan: document.getElementById("plan").value,
+        joining_date: document.getElementById("joiningDate").value,
+        fees: document.getElementById("fees").value,
         message: document.getElementById("message").value
     };
 
     try {
+
+        // Backend API ko data bhejna
         const response = await fetch("http://localhost:5000/contact", {
             method: "POST",
             headers: {
@@ -91,32 +98,34 @@ document.querySelector(".contact-form").addEventListener("submit", async functio
             body: JSON.stringify(data)
         });
 
+        // Backend se response lena
         const result = await response.json();
 
         alert(result.message);
 
+        // Data save hone par form reset hoga
         if (result.success) {
             this.reset();
         }
 
     } catch (error) {
+
+        // Error handle karna
         console.log(error);
         alert("Server Error");
     }
 });
 
-// LOADING SCREEN
+// Loading Screen
 window.addEventListener("load", function() {
 
     const loader = document.getElementById("loader");
 
-    // Website 2 second tak loading screen dikhayegi
     setTimeout(function() {
 
         loader.style.opacity = "0";
         loader.style.transition = "opacity 0.8s ease";
 
-        // Fade hone ke baad loader remove
         setTimeout(function() {
             loader.style.display = "none";
         }, 800);
@@ -125,44 +134,21 @@ window.addEventListener("load", function() {
 
 });
 
-// BACK TO TOP BUTTON
-// const topBtn = document.getElementById("topBtn");
-
-// window.addEventListener("scroll", function() {
-
-//     if (window.scrollY > 300) {
-//         topBtn.style.display = "block";
-//     } else {
-//         topBtn.style.display = "none";
-//     }
-
-// });
-
-// topBtn.addEventListener("click", function() {
-
-//     window.scrollTo({
-//         top: 0,
-//         behavior: "smooth"
-//     });
-
-// });
-// Show Members
+// Members ka data backend se laane aur table me dikhane ke liye
 async function loadMembers() {
 
     try {
 
+        // Backend se members data fetch karna
         const response = await fetch("http://localhost:5000/members");
         const result = await response.json();
 
-        console.log(result);
-        console.log(result.data[0]);
-
         let table = document.getElementById("membersTable");
 
-        console.log(table); // <-- Aur yaha add karo
-
+        // Table ko clear karna
         table.innerHTML = "";
 
+        // Har member ka data table me add karna
         result.data.forEach(member => {
 
             table.innerHTML += `
@@ -172,7 +158,7 @@ async function loadMembers() {
                     <td>${member.email}</td>
                     <td>${member.phone}</td>
                     <td>${member.membership_plan}</td>
-                    <td>${member.joining_date}</td>
+                    <td>${new Date(member.joining_date).toLocaleDateString("en-GB").replace(/\//g, "-")}</td>
                     <td>${member.fees}</td>
                 </tr>
             `;
@@ -185,5 +171,7 @@ async function loadMembers() {
 
 }
 
+// Page load hote hi members show honge
 loadMembers();
+
 console.log("SCRIPT END");
