@@ -1,0 +1,98 @@
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import api from '../../services/api.js'
+import { useToast } from '../../context/ToastContext.jsx'
+import Skeleton from '../../components/Skeleton.jsx'
+import EmptyState from '../../components/EmptyState.jsx'
+
+const typeStyles = {
+  info: 'border-white/10',
+  success: 'border-accent-yellow/40',
+  warning: 'border-accent-red/40',
+  error: 'border-accent-red/40',
+}
+
+const Notifications = () => {
+  const [notifications, setNotifications] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [busyId, setBusyId] = useState(null)
+  const { showToast } = useToast()
+
+  const load = async () => {
+    setLoading(true)
+    try {
+      const { data } = await api.get('/member/notifications')
+      setNotifications(data)
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to load notifications', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    load()
+  }, [])
+
+  const handleMarkRead = async (id) => {
+    setBusyId(id)
+    try {
+      await api.put(`/member/notifications/${id}/read`)
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)))
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to update notification', 'error')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-white">Notifications</h2>
+        <p className="mt-1 text-sm text-gray-400">Updates from your trainer and the gym.</p>
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-16" />
+          ))}
+        </div>
+      ) : notifications.length === 0 ? (
+        <EmptyState title="No notifications" message="You're all caught up." />
+      ) : (
+        <div className="space-y-3">
+          {notifications.map((n) => (
+            <motion.div
+              key={n._id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`flex items-start justify-between gap-4 rounded-2xl border bg-surface/60 p-5 ${typeStyles[n.type]} ${
+                !n.read ? 'ring-1 ring-accent-red/30' : ''
+              }`}
+            >
+              <div>
+                <p className="font-semibold text-white">{n.title}</p>
+                <p className="mt-1 text-sm text-gray-400">{n.message}</p>
+                <p className="mt-2 text-xs text-gray-500">{new Date(n.createdAt).toLocaleString()}</p>
+              </div>
+              {!n.read && (
+                <button
+                  type="button"
+                  disabled={busyId === n._id}
+                  onClick={() => handleMarkRead(n._id)}
+                  className="shrink-0 rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:text-white disabled:opacity-50"
+                >
+                  Mark read
+                </button>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Notifications
