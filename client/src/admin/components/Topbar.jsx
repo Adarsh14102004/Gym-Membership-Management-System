@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import NotificationBell from './NotificationBell.jsx'
 
 const Topbar = ({ onMenuClick, title = 'Admin Dashboard' }) => {
   const { user, logout } = useAuth()
@@ -28,6 +29,7 @@ const Topbar = ({ onMenuClick, title = 'Admin Dashboard' }) => {
       <h1 className="hidden text-lg font-bold text-white md:block">{title}</h1>
 
       <div className="flex items-center gap-4">
+        <NotificationBell />
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-red text-sm font-bold text-white">
             {initials}

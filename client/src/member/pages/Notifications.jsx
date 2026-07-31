@@ -21,7 +21,7 @@ const Notifications = () => {
   const load = async () => {
     setLoading(true)
     try {
-      const { data } = await api.get('/member/notifications')
+      const { data } = await api.get('/notifications')
       setNotifications(data)
     } catch (error) {
       showToast(error.response?.data?.message || 'Failed to load notifications', 'error')
@@ -37,10 +37,22 @@ const Notifications = () => {
   const handleMarkRead = async (id) => {
     setBusyId(id)
     try {
-      await api.put(`/member/notifications/${id}/read`)
+      await api.put(`/notifications/${id}/read`)
       setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, read: true } : n)))
     } catch (error) {
       showToast(error.response?.data?.message || 'Failed to update notification', 'error')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    setBusyId(id)
+    try {
+      await api.delete(`/notifications/${id}`)
+      setNotifications((prev) => prev.filter((n) => n._id !== id))
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to delete notification', 'error')
     } finally {
       setBusyId(null)
     }
@@ -77,16 +89,26 @@ const Notifications = () => {
                 <p className="mt-1 text-sm text-gray-400">{n.message}</p>
                 <p className="mt-2 text-xs text-gray-500">{new Date(n.createdAt).toLocaleString()}</p>
               </div>
-              {!n.read && (
+              <div className="flex shrink-0 gap-2">
+                {!n.read && (
+                  <button
+                    type="button"
+                    disabled={busyId === n._id}
+                    onClick={() => handleMarkRead(n._id)}
+                    className="rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:text-white disabled:opacity-50"
+                  >
+                    Mark read
+                  </button>
+                )}
                 <button
                   type="button"
                   disabled={busyId === n._id}
-                  onClick={() => handleMarkRead(n._id)}
-                  className="shrink-0 rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:text-white disabled:opacity-50"
+                  onClick={() => handleDelete(n._id)}
+                  className="rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:text-accent-red disabled:opacity-50"
                 >
-                  Mark read
+                  Delete
                 </button>
-              )}
+              </div>
             </motion.div>
           ))}
         </div>

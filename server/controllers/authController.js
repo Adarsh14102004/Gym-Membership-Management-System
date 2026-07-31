@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
-const ALLOWED_ROLES = ['admin', 'trainer', 'member']
-
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '30d' })
 
@@ -18,7 +16,7 @@ const sendAuthResponse = (res, statusCode, user) => {
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body
+    const { name, email, password } = req.body
 
     if (!name || !email || !password) {
       res.status(400)
@@ -35,11 +33,14 @@ const register = async (req, res, next) => {
       throw new Error('User already exists with this email')
     }
 
+    // Public self-registration always creates a member account. Trainer and
+    // admin accounts are provisioned by an admin (see admin/trainer routes),
+    // never chosen by the registering client.
     const user = await User.create({
       name,
       email,
       password,
-      role: ALLOWED_ROLES.includes(role) ? role : 'member',
+      role: 'member',
     })
 
     sendAuthResponse(res, 201, user)

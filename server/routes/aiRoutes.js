@@ -9,6 +9,7 @@ const {
   chat,
   getHistory,
 } = require('../controllers/aiController')
+const { ruleBasedChat } = require('../controllers/chatbotController')
 
 const router = express.Router()
 
@@ -20,7 +21,11 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
 })
 
-router.use(protect, authorize('member'), aiLimiter)
+router.use(protect, authorize('member'))
+
+router.post('/rule-chat', ruleBasedChat)
+
+router.use(aiLimiter)
 
 router.post('/workout-recommendation', getWorkoutRecommendation)
 router.post('/diet-recommendation', getDietRecommendation)

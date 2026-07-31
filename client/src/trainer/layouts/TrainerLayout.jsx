@@ -15,6 +15,7 @@ const links = [
   { to: '/trainer/diet-plans', label: 'Diet Plans' },
   { to: '/trainer/videos', label: 'Videos' },
   { to: '/trainer/progress', label: 'Progress Approval' },
+  { to: '/trainer/updates', label: 'Member Updates' },
   { to: '/trainer/chat', label: 'Chat' },
   { to: '/trainer/profile', label: 'Profile' },
   { to: '/trainer/settings', label: 'Settings' },

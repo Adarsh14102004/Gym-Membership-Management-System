@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Chart as ChartJS,
@@ -21,7 +21,11 @@ import ConfirmDialog from '../../admin/components/ConfirmDialog.jsx'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend)
 
+const FILE_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '')
+const fileUrl = (p) => (p ? `${FILE_BASE_URL}${p}` : '')
+
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const GOAL_CATEGORIES = ['Weight Loss', 'Muscle Gain', 'Strength', 'Endurance', 'General Fitness']
 
 const statusStyles = {
   pending: 'bg-accent-yellow/15 text-accent-yellow',
@@ -93,8 +97,62 @@ const GlassCard = ({ children, className = '' }) => (
   </motion.div>
 )
 
-const emptyEntry = { weight: '', height: '', bodyFat: '', notes: '' }
-const emptyGoal = { goal: '', targetWeight: '', targetDate: '' }
+const BeforeAfterSlider = ({ before, after }) => {
+  const [pos, setPos] = useState(50)
+
+  return (
+    <div className="space-y-3">
+      <div className="relative aspect-[4/3] w-full select-none overflow-hidden rounded-xl border border-white/10 bg-base">
+        <img src={fileUrl(after.progressImage)} alt="After" className="absolute inset-0 h-full w-full object-cover" draggable={false} />
+        <div className="absolute inset-0 overflow-hidden" style={{ width: `${pos}%` }}>
+          <img
+            src={fileUrl(before.progressImage)}
+            alt="Before"
+            className="h-full object-cover"
+            style={{ width: `${10000 / Math.max(pos, 1)}%`, maxWidth: 'none' }}
+            draggable={false}
+          />
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white" style={{ left: `${pos}%` }} />
+        <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold text-white">Before</span>
+        <span className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold text-white">After</span>
+      </div>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={pos}
+        onChange={(e) => setPos(Number(e.target.value))}
+        className="w-full accent-accent-red"
+      />
+    </div>
+  )
+}
+
+const MeasurementDiff = ({ label, before, after, unit = 'cm' }) => {
+  if (before == null && after == null) return null
+  const diff = before != null && after != null ? Number((after - before).toFixed(1)) : null
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-base px-4 py-3">
+      <span className="text-sm text-gray-400">{label}</span>
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-gray-500">{before != null ? `${before}${unit}` : '—'}</span>
+        <span className="text-gray-600">→</span>
+        <span className="font-semibold text-white">{after != null ? `${after}${unit}` : '—'}</span>
+        {diff != null && diff !== 0 && (
+          <span className={diff < 0 ? 'text-green-400' : 'text-accent-yellow'}>
+            ({diff > 0 ? '+' : ''}
+            {diff}
+            {unit})
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const emptyEntry = { weight: '', height: '', bodyFat: '', chest: '', waist: '', arms: '', thighs: '', notes: '' }
+const emptyGoal = { goal: '', category: 'General Fitness', targetWeight: '', targetDate: '' }
 
 const Progress = () => {
   const [logs, setLogs] = useState([])
@@ -103,11 +161,16 @@ const Progress = () => {
   const [loading, setLoading] = useState(true)
 
   const [form, setForm] = useState(emptyEntry)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [historySearch, setHistorySearch] = useState('')
+  const fileInputRef = useRef(null)
 
   const [editTarget, setEditTarget] = useState(null)
   const [editForm, setEditForm] = useState(emptyEntry)
+  const [editImageFile, setEditImageFile] = useState(null)
+  const [editImagePreview, setEditImagePreview] = useState('')
   const [editSaving, setEditSaving] = useState(false)
 
   const [deleteTarget, setDeleteTarget] = useState(null)
@@ -143,22 +206,37 @@ const Progress = () => {
   }, [])
 
   const latest = logs[logs.length - 1] || null
+  const earliest = logs[0] || null
   const livePreviewBmi = useMemo(() => calcBmi(Number(form.weight), Number(form.height)), [form.weight, form.height])
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  const buildFormData = (data, file) => {
+    const fd = new FormData()
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== '' && value !== undefined && value !== null) fd.append(key, value)
+    })
+    if (file) fd.append('progressImage', file)
+    return fd
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     try {
-      await api.post('/progress', {
-        weight: form.weight ? Number(form.weight) : undefined,
-        height: form.height ? Number(form.height) : undefined,
-        bodyFat: form.bodyFat ? Number(form.bodyFat) : undefined,
-        notes: form.notes,
-      })
-      showToast('Weight entry logged', 'success')
+      await api.post('/progress', buildFormData(form, imageFile), { headers: { 'Content-Type': 'multipart/form-data' } })
+      showToast('Progress entry logged', 'success')
       setForm(emptyEntry)
+      setImageFile(null)
+      setImagePreview('')
+      if (fileInputRef.current) fileInputRef.current.value = ''
       load()
     } catch (error) {
       showToast(error.response?.data?.message || 'Submission failed', 'error')
@@ -169,20 +247,35 @@ const Progress = () => {
 
   const openEdit = (row) => {
     setEditTarget(row)
-    setEditForm({ weight: row.weight ?? '', height: row.height ?? '', bodyFat: row.bodyFat ?? '', notes: row.notes || '' })
+    setEditForm({
+      weight: row.weight ?? '',
+      height: row.height ?? '',
+      bodyFat: row.bodyFat ?? '',
+      chest: row.chest ?? '',
+      waist: row.waist ?? '',
+      arms: row.arms ?? '',
+      thighs: row.thighs ?? '',
+      notes: row.notes || '',
+    })
+    setEditImageFile(null)
+    setEditImagePreview('')
   }
 
   const handleEditChange = (e) => setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+
+  const handleEditImageChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setEditImageFile(file)
+    setEditImagePreview(URL.createObjectURL(file))
+  }
 
   const handleEditSubmit = async (e) => {
     e.preventDefault()
     setEditSaving(true)
     try {
-      await api.put(`/progress/${editTarget._id}`, {
-        weight: editForm.weight ? Number(editForm.weight) : undefined,
-        height: editForm.height ? Number(editForm.height) : undefined,
-        bodyFat: editForm.bodyFat ? Number(editForm.bodyFat) : undefined,
-        notes: editForm.notes,
+      await api.put(`/progress/${editTarget._id}`, buildFormData(editForm, editImageFile), {
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
       showToast('Entry updated', 'success')
       setEditTarget(null)
@@ -211,7 +304,12 @@ const Progress = () => {
   const openGoalModal = () => {
     setGoalForm(
       goal
-        ? { goal: goal.goal, targetWeight: goal.targetWeight, targetDate: new Date(goal.targetDate).toISOString().slice(0, 10) }
+        ? {
+            goal: goal.goal,
+            category: goal.category || 'General Fitness',
+            targetWeight: goal.targetWeight,
+            targetDate: new Date(goal.targetDate).toISOString().slice(0, 10),
+          }
         : emptyGoal
     )
     setGoalModalOpen(true)
@@ -279,6 +377,18 @@ const Progress = () => {
     ],
   }
 
+  const measurementChartData = {
+    labels: logs.map((l) => new Date(l.createdAt).toLocaleDateString()),
+    datasets: [
+      { label: 'Chest', data: logs.map((l) => l.chest), borderColor: '#60a5fa', tension: 0.3 },
+      { label: 'Waist', data: logs.map((l) => l.waist), borderColor: '#ff3b30', tension: 0.3 },
+      { label: 'Arms', data: logs.map((l) => l.arms), borderColor: '#ffd60a', tension: 0.3 },
+      { label: 'Thighs', data: logs.map((l) => l.thighs), borderColor: '#34d399', tension: 0.3 },
+    ],
+  }
+
+  const hasMeasurements = logs.some((l) => l.chest != null || l.waist != null || l.arms != null || l.thighs != null)
+
   const frequencyCounts = DAYS.map((day) => workoutHistory.filter((h) => h.workoutPlan?.day === day).length)
   const frequencyChartData = {
     labels: DAYS.map((d) => d.slice(0, 3)),
@@ -286,6 +396,16 @@ const Progress = () => {
   }
 
   const historyColumns = [
+    {
+      key: 'progressImage',
+      label: 'Photo',
+      render: (row) =>
+        row.progressImage ? (
+          <img src={fileUrl(row.progressImage)} alt="Progress" className="h-10 w-10 rounded-lg object-cover" />
+        ) : (
+          <span className="text-gray-600">—</span>
+        ),
+    },
     { key: 'createdAt', label: 'Date', render: (row) => new Date(row.createdAt).toLocaleDateString() },
     { key: 'weight', label: 'Weight (kg)', render: (row) => row.weight ?? '—' },
     { key: 'bmi', label: 'BMI', render: (row) => row.bmi ?? '—' },
@@ -320,6 +440,10 @@ const Progress = () => {
     { key: 'completedAt', label: 'Completed', render: (row) => new Date(row.completedAt).toLocaleDateString() },
   ]
 
+  const photoLogs = logs.filter((l) => l.progressImage)
+  const beforePhoto = photoLogs[0]
+  const afterPhoto = photoLogs[photoLogs.length - 1]
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -338,7 +462,7 @@ const Progress = () => {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-white">Fitness Progress</h2>
-        <p className="mt-1 text-sm text-gray-400">Track your weight, BMI, goals and workout consistency.</p>
+        <p className="mt-1 text-sm text-gray-400">Track your weight, BMI, measurements, photos and goals.</p>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-3">
@@ -360,7 +484,11 @@ const Progress = () => {
           <div>
             <p className="text-sm text-gray-400">Goal Progress</p>
             <p className="mt-2 text-lg font-bold text-white">{goal?.goal || 'No active goal'}</p>
-            {goal && <p className="mt-1 text-xs text-gray-500">{goal.remaining} kg to go</p>}
+            {goal && (
+              <p className="mt-1 text-xs text-gray-500">
+                {goal.category} · {goal.remaining} kg to go
+              </p>
+            )}
           </div>
           {goal && <ProgressRing percent={goal.progress} />}
         </GlassCard>
@@ -376,6 +504,7 @@ const Progress = () => {
           name="weight"
           type="number"
           step="0.1"
+          min="0.1"
           value={form.weight}
           onChange={handleChange}
           required
@@ -402,6 +531,19 @@ const Progress = () => {
         />
         <input name="notes" value={form.notes} onChange={handleChange} placeholder="Notes (optional)" className={inputClass} />
 
+        <input name="chest" type="number" step="0.1" value={form.chest} onChange={handleChange} placeholder="Chest (cm)" className={inputClass} />
+        <input name="waist" type="number" step="0.1" value={form.waist} onChange={handleChange} placeholder="Waist (cm)" className={inputClass} />
+        <input name="arms" type="number" step="0.1" value={form.arms} onChange={handleChange} placeholder="Arms (cm)" className={inputClass} />
+        <input name="thighs" type="number" step="0.1" value={form.thighs} onChange={handleChange} placeholder="Thighs (cm)" className={inputClass} />
+
+        <div className="sm:col-span-4 flex flex-wrap items-center gap-4">
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-white/20 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-accent-red">
+            <span>📷 {imageFile ? 'Change Photo' : 'Upload Progress Photo'}</span>
+            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageChange} className="hidden" />
+          </label>
+          {imagePreview && <img src={imagePreview} alt="Preview" className="h-14 w-14 rounded-lg object-cover" />}
+        </div>
+
         {livePreviewBmi != null && (
           <p className="sm:col-span-4 text-sm text-gray-400">
             Calculated BMI: <span className="font-semibold text-accent-yellow">{livePreviewBmi}</span> (
@@ -414,7 +556,7 @@ const Progress = () => {
           disabled={submitting}
           className="sm:col-span-4 rounded-xl bg-accent-red py-3 text-sm font-semibold text-white disabled:opacity-60"
         >
-          {submitting ? 'Saving...' : 'Add Weight Entry'}
+          {submitting ? 'Saving...' : 'Add Progress Entry'}
         </button>
       </motion.form>
 
@@ -428,6 +570,33 @@ const Progress = () => {
           {logs.length ? <Line data={bmiChartData} options={chartOptions} /> : <EmptyState title="No data yet" />}
         </div>
       </div>
+
+      {hasMeasurements && (
+        <div className="rounded-2xl border border-white/10 bg-surface/60 p-6">
+          <h3 className="mb-4 text-sm font-semibold text-white">Measurement Progress</h3>
+          <Line
+            data={measurementChartData}
+            options={{ ...chartOptions, plugins: { legend: { display: true, labels: { color: '#9ca3af' } } } }}
+          />
+        </div>
+      )}
+
+      {beforePhoto && afterPhoto && beforePhoto._id !== afterPhoto._id && (
+        <div className="rounded-2xl border border-white/10 bg-surface/60 p-6">
+          <h3 className="mb-4 text-lg font-semibold text-white">Before vs After</h3>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <BeforeAfterSlider before={beforePhoto} after={afterPhoto} />
+            <div className="space-y-3">
+              <MeasurementDiff label="Weight" before={beforePhoto.weight} after={afterPhoto.weight} unit="kg" />
+              <MeasurementDiff label="BMI" before={beforePhoto.bmi} after={afterPhoto.bmi} unit="" />
+              <MeasurementDiff label="Chest" before={beforePhoto.chest} after={afterPhoto.chest} />
+              <MeasurementDiff label="Waist" before={beforePhoto.waist} after={afterPhoto.waist} />
+              <MeasurementDiff label="Arms" before={beforePhoto.arms} after={afterPhoto.arms} />
+              <MeasurementDiff label="Thighs" before={beforePhoto.thighs} after={afterPhoto.thighs} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div>
         <h3 className="mb-4 text-lg font-semibold text-white">Weight & BMI History</h3>
@@ -448,11 +617,44 @@ const Progress = () => {
         )}
       </div>
 
+      {logs.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-surface/60 p-6">
+          <h3 className="mb-6 text-lg font-semibold text-white">Progress Timeline</h3>
+          <div className="relative space-y-6 border-l border-white/10 pl-6">
+            {[...logs].reverse().map((log, i) => (
+              <motion.div
+                key={log._id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="relative"
+              >
+                <span className="absolute -left-[29px] top-1 h-3 w-3 rounded-full border-2 border-base bg-accent-red" />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    {log.progressImage && (
+                      <img src={fileUrl(log.progressImage)} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-white">{new Date(log.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500">
+                        {log.weight} kg{log.bmi != null ? ` · BMI ${log.bmi}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[log.status]}`}>{log.status}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-white/10 bg-surface/60 p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">Goal Tracker</h3>
-            <p className="mt-1 text-sm text-gray-400">Set a target weight and track your journey.</p>
+            <p className="mt-1 text-sm text-gray-400">Set a fitness goal and track your journey.</p>
           </div>
           <div className="flex gap-3">
             <button
@@ -476,7 +678,11 @@ const Progress = () => {
         </div>
 
         {goal && (
-          <div className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-5">
+            <div>
+              <p className="text-gray-500">Category</p>
+              <p className="mt-1 font-medium text-white">{goal.category}</p>
+            </div>
             <div>
               <p className="text-gray-500">Target</p>
               <p className="mt-1 font-medium text-white">{goal.targetWeight} kg</p>
@@ -518,12 +724,13 @@ const Progress = () => {
         </div>
       </div>
 
-      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Weight Entry">
+      <Modal open={!!editTarget} onClose={() => setEditTarget(null)} title="Edit Progress Entry">
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <input
             name="weight"
             type="number"
             step="0.1"
+            min="0.1"
             value={editForm.weight}
             onChange={handleEditChange}
             required
@@ -548,7 +755,20 @@ const Progress = () => {
             placeholder="Body Fat %"
             className={inputClass}
           />
+          <div className="grid grid-cols-2 gap-3">
+            <input name="chest" type="number" step="0.1" value={editForm.chest} onChange={handleEditChange} placeholder="Chest (cm)" className={inputClass} />
+            <input name="waist" type="number" step="0.1" value={editForm.waist} onChange={handleEditChange} placeholder="Waist (cm)" className={inputClass} />
+            <input name="arms" type="number" step="0.1" value={editForm.arms} onChange={handleEditChange} placeholder="Arms (cm)" className={inputClass} />
+            <input name="thighs" type="number" step="0.1" value={editForm.thighs} onChange={handleEditChange} placeholder="Thighs (cm)" className={inputClass} />
+          </div>
           <input name="notes" value={editForm.notes} onChange={handleEditChange} placeholder="Notes" className={inputClass} />
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-white/20 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-accent-red">
+            <span>📷 {editImageFile ? 'Change Photo' : 'Replace Progress Photo'}</span>
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleEditImageChange} className="hidden" />
+          </label>
+          {(editImagePreview || editTarget?.progressImage) && (
+            <img src={editImagePreview || fileUrl(editTarget?.progressImage)} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+          )}
           <button
             type="submit"
             disabled={editSaving}
@@ -561,7 +781,7 @@ const Progress = () => {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        message="Delete this weight entry? This cannot be undone."
+        message="Delete this progress entry? This cannot be undone."
         onCancel={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         loading={deleting}
@@ -569,6 +789,13 @@ const Progress = () => {
 
       <Modal open={goalModalOpen} onClose={() => setGoalModalOpen(false)} title={goal ? 'Edit Goal' : 'Set a Goal'}>
         <form onSubmit={handleGoalSubmit} className="space-y-4">
+          <select name="category" value={goalForm.category} onChange={handleGoalChange} className={inputClass}>
+            {GOAL_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
           <input
             name="goal"
             value={goalForm.goal}

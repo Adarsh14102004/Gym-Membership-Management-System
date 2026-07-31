@@ -17,12 +17,18 @@ const withProgress = async (goalDoc) => {
   return { ...goal, currentWeight, progress: percent, remaining }
 }
 
+const CATEGORIES = ['Weight Loss', 'Muscle Gain', 'Strength', 'Endurance', 'General Fitness']
+
 const createGoal = async (req, res, next) => {
   try {
-    const { goal, targetWeight, targetDate } = req.body
+    const { goal, category, targetWeight, targetDate } = req.body
     if (!goal || !targetWeight || !targetDate) {
       res.status(400)
       throw new Error('Goal, target weight and target date are required')
+    }
+    if (category && !CATEGORIES.includes(category)) {
+      res.status(400)
+      throw new Error('Invalid goal category')
     }
 
     const existing = await Goal.findOne({ member: req.user._id, status: 'active' })
@@ -36,6 +42,7 @@ const createGoal = async (req, res, next) => {
     const doc = await Goal.create({
       member: req.user._id,
       goal,
+      category: category || 'General Fitness',
       startWeight,
       targetWeight: Number(targetWeight),
       targetDate,
@@ -55,8 +62,13 @@ const updateGoal = async (req, res, next) => {
       throw new Error('Goal not found')
     }
 
-    const { goal, targetWeight, targetDate, status } = req.body
+    const { goal, category, targetWeight, targetDate, status } = req.body
+    if (category && !CATEGORIES.includes(category)) {
+      res.status(400)
+      throw new Error('Invalid goal category')
+    }
     if (goal) doc.goal = goal
+    if (category) doc.category = category
     if (targetWeight !== undefined) doc.targetWeight = Number(targetWeight)
     if (targetDate) doc.targetDate = targetDate
     if (status) doc.status = status

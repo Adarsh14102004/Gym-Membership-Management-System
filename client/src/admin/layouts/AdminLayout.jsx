@@ -13,6 +13,8 @@ const links = [
   { to: '/admin/classes', label: 'Classes' },
   { to: '/admin/membership', label: 'Membership' },
   { to: '/admin/attendance', label: 'Attendance' },
+  { to: '/admin/analytics', label: 'Analytics' },
+  { to: '/admin/reports', label: 'Reports' },
   { to: '/admin/profile', label: 'Profile' },
   { to: '/admin/settings', label: 'Settings' },
 ]

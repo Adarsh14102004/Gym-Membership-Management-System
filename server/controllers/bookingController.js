@@ -1,5 +1,7 @@
 const Booking = require('../models/Booking')
 const Class = require('../models/Class')
+const Notification = require('../models/Notification')
+const { sendTemplatedEmail } = require('../services/emailService')
 
 const isPastClass = (cls) => {
   const [hours, minutes] = cls.startTime.split(':').map(Number)
@@ -48,6 +50,29 @@ const bookClass = async (req, res, next) => {
     await cls.save()
 
     await booking.populate({ path: 'class', populate: { path: 'trainer', select: 'name' } })
+
+    await Notification.create({
+      user: req.user._id,
+      title: 'Class Booked',
+      message: `You're booked for ${cls.title} on ${new Date(cls.date).toLocaleDateString()} at ${cls.startTime}.`,
+      type: 'success',
+    })
+    sendTemplatedEmail('classBookingConfirmation', req.user.email, {
+      name: req.user.name,
+      classTitle: cls.title,
+      date: cls.date,
+      startTime: cls.startTime,
+    }).catch(() => {})
+
+    if (cls.trainer) {
+      await Notification.create({
+        user: cls.trainer,
+        title: 'New Class Booking',
+        message: `${req.user.name} booked your class "${cls.title}" on ${new Date(cls.date).toLocaleDateString()}.`,
+        type: 'info',
+      })
+    }
+
     res.status(201).json(booking)
   } catch (error) {
     if (error.code === 11000) {
@@ -73,7 +98,30 @@ const cancelBooking = async (req, res, next) => {
     booking.status = 'cancelled'
     await booking.save()
 
-    await Class.findByIdAndUpdate(booking.class, { $inc: { bookedSeats: -1 } })
+    const cls = await Class.findByIdAndUpdate(booking.class, { $inc: { bookedSeats: -1 } }, { returnDocument: 'after' })
+
+    if (cls) {
+      await Notification.create({
+        user: req.user._id,
+        title: 'Booking Cancelled',
+        message: `Your booking for ${cls.title} on ${new Date(cls.date).toLocaleDateString()} has been cancelled.`,
+        type: 'info',
+      })
+      sendTemplatedEmail('classCancellation', req.user.email, {
+        name: req.user.name,
+        classTitle: cls.title,
+        date: cls.date,
+      }).catch(() => {})
+
+      if (cls.trainer) {
+        await Notification.create({
+          user: cls.trainer,
+          title: 'Booking Cancelled',
+          message: `${req.user.name} cancelled their booking for "${cls.title}" on ${new Date(cls.date).toLocaleDateString()}.`,
+          type: 'info',
+        })
+      }
+    }
 
     res.json({ message: 'Booking cancelled' })
   } catch (error) {

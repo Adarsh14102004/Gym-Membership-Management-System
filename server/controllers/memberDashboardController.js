@@ -3,6 +3,7 @@ const WorkoutPlan = require('../models/WorkoutPlan')
 const DietPlan = require('../models/DietPlan')
 const Notification = require('../models/Notification')
 const Attendance = require('../models/Attendance')
+const Payment = require('../models/Payment')
 const { getMembershipSummary } = require('./membershipController')
 
 const todayKey = () => new Date().toISOString().slice(0, 10)
@@ -84,15 +85,35 @@ const getDietPlan = async (req, res, next) => {
   }
 }
 
+const getMyTrainer = async (req, res, next) => {
+  try {
+    const member = await User.findById(req.user._id).populate('assignedTrainer', 'name email specialization')
+    res.json(member.assignedTrainer || null)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const monthKey = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
 const getDashboardSummary = async (req, res, next) => {
   try {
-    const [membership, workoutPlan, dietPlan, unreadNotifications, todayAttendance] = await Promise.all([
-      getMembershipSummary(req.user._id),
-      WorkoutPlan.findOne({ member: req.user._id, day: todayDayName(), status: 'active' }),
-      DietPlan.findOne({ member: req.user._id, status: 'active' }).sort({ createdAt: -1 }),
-      Notification.countDocuments({ user: req.user._id, read: false }),
-      Attendance.findOne({ member: req.user._id, date: todayKey() }),
-    ])
+    const [membership, workoutPlan, dietPlan, unreadNotifications, todayAttendance, monthlyAttendance, latestPayment] =
+      await Promise.all([
+        getMembershipSummary(req.user._id),
+        WorkoutPlan.findOne({ member: req.user._id, day: todayDayName(), status: 'active' }),
+        DietPlan.findOne({ member: req.user._id, status: 'active' }).sort({ createdAt: -1 }),
+        Notification.countDocuments({ user: req.user._id, read: false }),
+        Attendance.findOne({ member: req.user._id, date: todayKey() }),
+        Attendance.countDocuments({ member: req.user._id, date: new RegExp(`^${monthKey()}`) }),
+        Payment.findOne({ member: req.user._id }).sort({ paymentDate: -1 }),
+      ])
+
+    const daysElapsed = new Date().getDate()
+    const attendancePercentage = daysElapsed > 0 ? Math.round((monthlyAttendance / daysElapsed) * 100) : 0
 
     res.json({
       membership,
@@ -100,6 +121,8 @@ const getDashboardSummary = async (req, res, next) => {
       todayDiet: dietPlan,
       attendanceToday: !!todayAttendance,
       unreadNotifications,
+      attendancePercentage,
+      paymentStatus: latestPayment?.paymentStatus || 'none',
     })
   } catch (error) {
     next(error)
@@ -112,4 +135,5 @@ module.exports = {
   changePassword,
   getDietPlan,
   getDashboardSummary,
+  getMyTrainer,
 }

@@ -52,4 +52,7 @@ const classSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+classSchema.index({ date: 1, startTime: 1 })
+classSchema.index({ trainer: 1 })
+
 module.exports = mongoose.model('Class', classSchema)

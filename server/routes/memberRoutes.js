@@ -6,8 +6,10 @@ const {
   changePassword,
   getDietPlan,
   getDashboardSummary,
+  getMyTrainer,
 } = require('../controllers/memberDashboardController')
 const { getMyMembership } = require('../controllers/membershipController')
+const { listActivePlans } = require('../controllers/planController')
 const {
   getMyWeeklySchedule,
   getTodayWorkoutStatus,
@@ -29,11 +31,13 @@ const router = express.Router()
 router.use(protect, authorize('member'))
 
 router.get('/dashboard', getDashboardSummary)
+router.get('/trainer', getMyTrainer)
 
 router.route('/profile').get(getProfile).put(updateProfile)
 router.put('/change-password', changePassword)
 
 router.get('/membership', getMyMembership)
+router.get('/plans', listActivePlans)
 
 router.get('/workout-plan', getMyWeeklySchedule)
 router.get('/workout-plan/today', getTodayWorkoutStatus)

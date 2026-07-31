@@ -97,6 +97,33 @@ const Dashboard = () => {
           <p className="mt-1 text-xs text-gray-500">
             {membership.expiryDate ? new Date(membership.expiryDate).toLocaleDateString() : 'No active plan'}
           </p>
+          {membership.daysRemaining != null && membership.daysRemaining <= 7 && (
+            <Link to="/member/payment" className="mt-3 inline-block text-xs font-semibold text-accent-red hover:underline">
+              Renew now
+            </Link>
+          )}
+        </GlassCard>
+
+        <GlassCard>
+          <p className="text-sm text-gray-400">Attendance This Month</p>
+          <p className="mt-2 text-2xl font-extrabold text-accent-yellow">{summary.attendancePercentage}%</p>
+          <Link to="/member/attendance" className="mt-3 inline-block text-xs font-semibold text-accent-yellow hover:underline">
+            View history
+          </Link>
+        </GlassCard>
+
+        <GlassCard>
+          <p className="text-sm text-gray-400">Payment Status</p>
+          <p
+            className={`mt-2 text-2xl font-extrabold capitalize ${
+              summary.paymentStatus === 'success' ? 'text-accent-yellow' : 'text-gray-500'
+            }`}
+          >
+            {summary.paymentStatus === 'none' ? 'No Payments' : summary.paymentStatus}
+          </p>
+          <Link to="/member/payments" className="mt-3 inline-block text-xs font-semibold text-accent-yellow hover:underline">
+            View history
+          </Link>
         </GlassCard>
 
         <GlassCard>

@@ -4,16 +4,20 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Sidebar from '../../admin/components/Sidebar.jsx'
 import Topbar from '../../admin/components/Topbar.jsx'
 import Toast from '../../components/Toast.jsx'
+import FloatingChatbot from '../components/FloatingChatbot.jsx'
 
 const links = [
   { to: '/member', label: 'Dashboard', end: true },
   { to: '/member/membership', label: 'My Membership' },
+  { to: '/member/payments', label: 'Payments' },
   { to: '/member/attendance', label: 'Attendance' },
   { to: '/member/classes', label: 'Class Schedule' },
   { to: '/member/bookings', label: 'My Bookings' },
   { to: '/member/workout-plan', label: 'Workout Plan' },
   { to: '/member/diet-plan', label: 'Diet Plan' },
   { to: '/member/progress', label: 'Progress' },
+  { to: '/member/chat', label: 'Chat' },
+  { to: '/member/ai-assistant', label: 'AI Assistant' },
   { to: '/member/notifications', label: 'Notifications' },
   { to: '/member/profile', label: 'Profile' },
   { to: '/member/settings', label: 'Settings' },
@@ -43,6 +47,7 @@ const MemberLayout = () => {
         </main>
       </div>
       <Toast />
+      <FloatingChatbot />
     </div>
   )
 }

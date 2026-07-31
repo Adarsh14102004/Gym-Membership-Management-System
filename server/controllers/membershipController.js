@@ -1,6 +1,8 @@
 const Membership = require('../models/Membership')
 const MembershipPlan = require('../models/MembershipPlan')
 const User = require('../models/User')
+const Notification = require('../models/Notification')
+const { sendTemplatedEmail } = require('../services/emailService')
 
 const DURATION_MONTHS = { monthly: 1, quarterly: 3, yearly: 12 }
 
@@ -191,13 +193,77 @@ const getMembershipSummary = async (memberId) => {
   }
 }
 
+const notifyExpiringSoon = async (memberId, summary) => {
+  if (summary.status !== 'active' || summary.daysRemaining == null || summary.daysRemaining > 3 || summary.daysRemaining < 0) return
+
+  const startOfDay = new Date(new Date().toDateString())
+  const alreadyNotified = await Notification.findOne({
+    user: memberId,
+    title: 'Membership Expiring Soon',
+    createdAt: { $gte: startOfDay },
+  })
+  if (alreadyNotified) return
+
+  await Notification.create({
+    user: memberId,
+    title: 'Membership Expiring Soon',
+    message: `Your ${summary.planName} plan expires in ${summary.daysRemaining} day(s). Renew now to avoid interruption.`,
+    type: 'warning',
+  })
+
+  const member = await User.findById(memberId).select('name email')
+  if (member) {
+    sendTemplatedEmail('membershipExpiryReminder', member.email, {
+      name: member.name,
+      planName: summary.planName,
+      daysRemaining: summary.daysRemaining,
+      expiryDate: summary.expiryDate,
+    }).catch(() => {})
+  }
+}
+
 const getMyMembership = async (req, res, next) => {
   try {
     const summary = await getMembershipSummary(req.user._id)
+    await notifyExpiringSoon(req.user._id, summary)
     res.json(summary)
   } catch (error) {
     next(error)
   }
+}
+
+const purchaseOrRenewMembership = async (memberId, planId) => {
+  const planDoc = await MembershipPlan.findOne({ _id: planId, status: 'active' })
+  if (!planDoc) {
+    throw new Error('Membership plan not found or unavailable')
+  }
+
+  await autoExpire()
+  let membership = await Membership.findOne({ member: memberId }).sort({ endDate: -1 })
+
+  const isUsable = membership && membership.status === 'active' && membership.endDate > new Date()
+  const base = isUsable ? membership.endDate : new Date()
+  const endDate = addMonths(base, DURATION_MONTHS[planDoc.duration] || 1)
+
+  if (membership) {
+    membership.plan = planDoc._id
+    membership.startDate = isUsable ? membership.startDate : new Date()
+    membership.endDate = endDate
+    membership.amount = planDoc.price
+    membership.status = 'active'
+    await membership.save()
+  } else {
+    membership = await Membership.create({
+      member: memberId,
+      plan: planDoc._id,
+      startDate: new Date(),
+      endDate,
+      amount: planDoc.price,
+      status: 'active',
+    })
+  }
+
+  return { membership, planDoc }
 }
 
 module.exports = {
@@ -209,4 +275,5 @@ module.exports = {
   checkExpiry,
   getMembershipSummary,
   getMyMembership,
+  purchaseOrRenewMembership,
 }

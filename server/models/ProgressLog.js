@@ -28,6 +28,27 @@ const progressLogSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    chest: {
+      type: Number,
+      default: null,
+    },
+    waist: {
+      type: Number,
+      default: null,
+    },
+    arms: {
+      type: Number,
+      default: null,
+    },
+    thighs: {
+      type: Number,
+      default: null,
+    },
+    progressImage: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     notes: {
       type: String,
       trim: true,
@@ -43,8 +64,16 @@ const progressLogSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    approvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
   },
   { timestamps: true }
 )
+
+progressLogSchema.index({ member: 1, createdAt: -1 })
+progressLogSchema.index({ trainer: 1, status: 1 })
 
 module.exports = mongoose.model('ProgressLog', progressLogSchema)

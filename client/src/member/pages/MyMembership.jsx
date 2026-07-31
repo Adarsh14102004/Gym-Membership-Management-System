@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import api from '../../services/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
@@ -34,7 +35,15 @@ const MyMembership = () => {
       {loading ? (
         <Skeleton className="h-56" />
       ) : !membership.planName ? (
-        <EmptyState title="No active membership plan" message="Contact the gym front desk to get a plan assigned." />
+        <div className="space-y-4">
+          <EmptyState title="No active membership plan" message="Choose a plan below to get started." />
+          <Link
+            to="/member/payment"
+            className="inline-block rounded-full bg-accent-red px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent-red/30 transition-transform hover:scale-105"
+          >
+            Choose a Plan
+          </Link>
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -66,6 +75,21 @@ const MyMembership = () => {
               <p className="text-gray-500">Days Remaining</p>
               <p className="mt-1 font-medium text-white">{membership.daysRemaining}</p>
             </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to="/member/payment"
+              className="rounded-full bg-accent-red px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent-red/30 transition-transform hover:scale-105"
+            >
+              Renew Membership
+            </Link>
+            <Link
+              to="/member/payments"
+              className="rounded-full border border-white/10 px-5 py-2.5 text-sm font-semibold text-gray-300 hover:text-white"
+            >
+              Payment History
+            </Link>
           </div>
         </motion.div>
       )}

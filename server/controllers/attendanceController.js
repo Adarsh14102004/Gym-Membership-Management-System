@@ -2,6 +2,7 @@ const QRCode = require('qrcode')
 const Attendance = require('../models/Attendance')
 const Membership = require('../models/Membership')
 const User = require('../models/User')
+const Notification = require('../models/Notification')
 
 const todayKey = () => new Date().toISOString().slice(0, 10)
 const monthPrefix = (key) => new RegExp(`^${key}`)
@@ -77,6 +78,14 @@ const checkIn = async (req, res, next) => {
     }
 
     const record = await Attendance.create({ member: req.user._id, date: todayKey() })
+
+    await Notification.create({
+      user: req.user._id,
+      title: 'Attendance Confirmed',
+      message: `You checked in on ${todayKey()}. Keep up the streak!`,
+      type: 'success',
+    })
+
     res.status(201).json(record)
   } catch (error) {
     next(error)
@@ -114,6 +123,14 @@ const markAttendanceByQr = async (req, res, next) => {
     }
 
     const record = await Attendance.create({ member: member._id, date: todayKey() })
+
+    await Notification.create({
+      user: member._id,
+      title: 'Attendance Confirmed',
+      message: `You checked in on ${todayKey()}. Keep up the streak!`,
+      type: 'success',
+    })
+
     res.status(201).json({ ...record.toObject(), memberName: member.name })
   } catch (error) {
     next(error)

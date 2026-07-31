@@ -12,7 +12,7 @@ const dashboardPath = (role) => {
 }
 
 const Register = () => {
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'member' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
   const [submitting, setSubmitting] = useState(false)
   const { register } = useAuth()
   const { showToast } = useToast()
@@ -30,7 +30,7 @@ const Register = () => {
     }
     setSubmitting(true)
     try {
-      const data = await register(form.name, form.email, form.password, form.role)
+      const data = await register(form.name, form.email, form.password)
       showToast(`Welcome to FitZone, ${data.name}!`, 'success')
       navigate(dashboardPath(data.role))
     } catch (error) {
@@ -120,22 +120,6 @@ const Register = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="role" className="mb-1.5 block text-sm font-medium text-gray-300">
-                I am joining as
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-sm text-white outline-none transition-colors focus:border-accent-red"
-              >
-                <option value="member">Member</option>
-                <option value="trainer">Trainer</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
           </div>
 
           <button

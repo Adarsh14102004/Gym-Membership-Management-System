@@ -18,7 +18,7 @@ const {
 const { listExercises, getExercise, createExercise, updateExercise, deleteExercise } = require('../controllers/exerciseController')
 const { listDietPlans, createDietPlan, updateDietPlan, deleteDietPlan } = require('../controllers/dietPlanController')
 const { listVideos, createVideo, updateVideo, deleteVideo } = require('../controllers/videoController')
-const { listProgress, reviewProgress } = require('../controllers/progressController')
+const { listProgress, reviewProgress, getMemberProgressHistory } = require('../controllers/progressController')
 const { getTrainerAttendance } = require('../controllers/attendanceController')
 
 const router = express.Router()
@@ -45,6 +45,7 @@ router.route('/videos').get(listVideos).post(createVideo)
 router.route('/videos/:id').put(updateVideo).delete(deleteVideo)
 
 router.get('/progress', listProgress)
+router.get('/progress/member/:memberId', getMemberProgressHistory)
 router.put('/progress/:id/review', reviewProgress)
 
 router.get('/attendance', getTrainerAttendance)

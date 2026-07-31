@@ -23,6 +23,13 @@ const Card = ({ children, className = '' }) => (
   <div className={`rounded-2xl border border-white/10 bg-surface/60 p-6 backdrop-blur-sm ${className}`}>{children}</div>
 )
 
+const GradientCard = ({ children, className = '' }) => (
+  <div className={`relative overflow-hidden rounded-2xl border border-white/10 bg-surface/60 p-6 backdrop-blur-sm ${className}`}>
+    <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-accent-red/30 to-accent-yellow/20 blur-3xl" />
+    <div className="relative">{children}</div>
+  </div>
+)
+
 const TipList = ({ items }) => (
   <ul className="mt-3 space-y-1.5">
     {items.map((t, i) => (
@@ -64,7 +71,7 @@ const ChatPanel = () => {
   }
 
   return (
-    <Card className="flex h-[520px] flex-col p-4">
+    <Card className="flex h-[520px] flex-col p-4 sm:h-[560px]">
       <div className="flex-1 space-y-3 overflow-y-auto px-2 py-2">
         {messages.length === 0 && (
           <EmptyState title="Ask your AI Fitness Assistant" message="Ask about workouts, diet, or get some motivation." />
@@ -74,11 +81,16 @@ const ChatPanel = () => {
             key={i}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex items-end gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
+            {m.role === 'assistant' && (
+              <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-gradient-to-br from-accent-red to-accent-yellow text-xs">
+                🤖
+              </div>
+            )}
             <div
               className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
-                m.role === 'user' ? 'bg-accent-red text-white' : 'bg-white/10 text-gray-200'
+                m.role === 'user' ? 'bg-gradient-to-r from-accent-red to-accent-red/80 text-white' : 'bg-white/10 text-gray-200'
               }`}
             >
               {m.content}
@@ -86,7 +98,10 @@ const ChatPanel = () => {
           </motion.div>
         ))}
         {sending && (
-          <div className="flex justify-start">
+          <div className="flex items-end justify-start gap-2">
+            <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-gradient-to-br from-accent-red to-accent-yellow text-xs">
+              🤖
+            </div>
             <div className="flex items-center gap-1 rounded-2xl bg-white/10 px-4 py-3">
               {[0, 1, 2].map((i) => (
                 <motion.span
@@ -111,7 +126,7 @@ const ChatPanel = () => {
         <button
           type="submit"
           disabled={sending}
-          className="flex-none rounded-xl bg-accent-red px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          className="flex-none rounded-xl bg-gradient-to-r from-accent-red to-accent-yellow px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent-red/30 disabled:opacity-60"
         >
           Send
         </button>
@@ -232,10 +247,10 @@ const WorkoutPanel = () => {
 
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <Card>
+          <GradientCard>
             <h3 className="text-lg font-bold text-white">Overview</h3>
             <p className="mt-2 text-sm text-gray-400">{result.overview}</p>
-          </Card>
+          </GradientCard>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {result.weeklySchedule.map((d, i) => (
               <Card key={i}>
@@ -356,10 +371,10 @@ const DietPanel = () => {
 
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <Card>
+          <GradientCard>
             <h3 className="text-lg font-bold text-white">Overview</h3>
             <p className="mt-2 text-sm text-gray-400">{result.overview}</p>
-          </Card>
+          </GradientCard>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { label: 'Calories', value: result.totals.calories },
@@ -450,7 +465,7 @@ const BmiPanel = () => {
 
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="max-w-xl">
+          <GradientCard className="max-w-xl">
             <p className="text-sm text-gray-400">Your BMI</p>
             <p className="mt-2 text-4xl font-extrabold text-white">{result.bmi}</p>
             <span
@@ -462,7 +477,7 @@ const BmiPanel = () => {
             </span>
             <p className="mt-4 text-sm text-gray-400">{result.explanation}</p>
             <TipList items={result.suggestions} />
-          </Card>
+          </GradientCard>
         </motion.div>
       )}
     </div>
@@ -508,10 +523,10 @@ const PredictionPanel = () => {
 
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <Card>
+          <GradientCard>
             <h4 className="font-bold text-white">Expected Progress</h4>
             <p className="mt-2 text-sm text-gray-400">{result.expectedProgress}</p>
-          </Card>
+          </GradientCard>
           <Card>
             <h4 className="font-bold text-white">Improvement Suggestions</h4>
             <TipList items={result.improvementSuggestions} />
@@ -627,11 +642,16 @@ const AIAssistant = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white">AI Fitness Assistant</h2>
-        <p className="mt-1 text-sm text-gray-400">
-          Personalized workout & diet recommendations, BMI analysis, progress predictions, and a fitness chatbot.
-        </p>
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-accent-red to-accent-yellow text-2xl shadow-lg shadow-accent-red/30">
+          🤖
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-white">AI Fitness Assistant</h2>
+          <p className="mt-1 text-sm text-gray-400">
+            Personalized workout & diet recommendations, BMI analysis, progress predictions, and a fitness chatbot.
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -640,8 +660,10 @@ const AIAssistant = () => {
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
-              tab === t.key ? 'bg-accent-red text-white' : 'bg-white/5 text-gray-300 hover:text-white'
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+              tab === t.key
+                ? 'bg-gradient-to-r from-accent-red to-accent-yellow text-white shadow-lg shadow-accent-red/30'
+                : 'bg-white/5 text-gray-300 hover:text-white'
             }`}
           >
             {t.label}

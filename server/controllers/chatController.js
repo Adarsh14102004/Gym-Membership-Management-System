@@ -11,6 +11,22 @@ const isValidPair = (requester, other) => {
   return false
 }
 
+const createChatMessage = async (senderId, recipientId, text) => {
+  if (!text || !text.trim()) {
+    throw new Error('Message text is required')
+  }
+
+  const [sender, recipient] = await Promise.all([User.findById(senderId), User.findById(recipientId)])
+  if (!sender || !recipient) {
+    throw new Error('User not found')
+  }
+  if (!isValidPair(sender, recipient)) {
+    throw new Error('You are not authorized to message this user')
+  }
+
+  return Message.create({ sender: sender._id, recipient: recipient._id, text: text.trim() })
+}
+
 const getMessages = async (req, res, next) => {
   try {
     const other = await User.findById(req.params.userId)
@@ -38,12 +54,18 @@ const getMessages = async (req, res, next) => {
 
 const sendMessage = async (req, res, next) => {
   try {
-    const { text } = req.body
-    if (!text) {
-      res.status(400)
-      throw new Error('Message text is required')
-    }
+    const message = await createChatMessage(req.user._id, req.params.userId, req.body.text)
+    res.status(201).json(message)
+  } catch (error) {
+    if (error.message === 'User not found') res.status(404)
+    else if (error.message.includes('not authorized')) res.status(403)
+    else res.status(400)
+    next(error)
+  }
+}
 
+const markRead = async (req, res, next) => {
+  try {
     const other = await User.findById(req.params.userId)
     if (!other) {
       res.status(404)
@@ -51,14 +73,27 @@ const sendMessage = async (req, res, next) => {
     }
     if (!isValidPair(req.user, other)) {
       res.status(403)
-      throw new Error('You are not authorized to message this user')
+      throw new Error('You are not authorized to access this conversation')
     }
 
-    const message = await Message.create({ sender: req.user._id, recipient: other._id, text })
-    res.status(201).json(message)
+    await Message.updateMany({ sender: other._id, recipient: req.user._id, read: false }, { read: true })
+
+    const { notifyRead } = require('../socket')
+    notifyRead(String(req.user._id), String(other._id))
+
+    res.json({ message: 'Messages marked as read' })
   } catch (error) {
     next(error)
   }
 }
 
-module.exports = { getMessages, sendMessage }
+const getUnreadCount = async (req, res, next) => {
+  try {
+    const count = await Message.countDocuments({ recipient: req.user._id, read: false })
+    res.json({ count })
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { getMessages, sendMessage, markRead, getUnreadCount, createChatMessage }

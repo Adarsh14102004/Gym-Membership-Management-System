@@ -3,11 +3,13 @@ import api from '../../services/api.js'
 import { useToast } from '../../context/ToastContext.jsx'
 import DataTable from '../../admin/components/DataTable.jsx'
 import Skeleton from '../../components/Skeleton.jsx'
+import Chart from '../../admin/components/Chart.jsx'
 
 const Attendance = () => {
   const [today, setToday] = useState(null)
   const [records, setRecords] = useState([])
   const [qr, setQr] = useState(null)
+  const [monthly, setMonthly] = useState(null)
   const [loading, setLoading] = useState(true)
   const [checkingIn, setCheckingIn] = useState(false)
   const [search, setSearch] = useState('')
@@ -16,14 +18,16 @@ const Attendance = () => {
   const load = async () => {
     setLoading(true)
     try {
-      const [todayRes, historyRes, qrRes] = await Promise.all([
+      const [todayRes, historyRes, qrRes, monthlyRes] = await Promise.all([
         api.get('/member/attendance/today'),
         api.get('/member/attendance'),
         api.get('/member/attendance/qr'),
+        api.get('/member/attendance/monthly'),
       ])
       setToday(todayRes.data)
       setRecords(historyRes.data)
       setQr(qrRes.data)
+      setMonthly(monthlyRes.data)
     } catch (error) {
       showToast(error.response?.data?.message || 'Failed to load attendance', 'error')
     } finally {
@@ -103,6 +107,23 @@ const Attendance = () => {
           )
         )}
       </div>
+
+      {monthly && (
+        <Chart
+          title="Monthly Attendance"
+          subtitle={`${monthly.count} check-in${monthly.count === 1 ? '' : 's'} in ${monthly.month}`}
+          data={
+            monthly.records.length
+              ? (() => {
+                  const [year, month] = monthly.month.split('-').map(Number)
+                  const daysInMonth = new Date(year, month, 0).getDate()
+                  const presentDays = new Set(monthly.records.map((r) => Number(r.date.split('-')[2])))
+                  return Array.from({ length: daysInMonth }, (_, i) => (presentDays.has(i + 1) ? 1 : 0))
+                })()
+              : [0]
+          }
+        />
+      )}
 
       <DataTable
         columns={columns}

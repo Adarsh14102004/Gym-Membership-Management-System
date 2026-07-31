@@ -35,4 +35,7 @@ const membershipSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+membershipSchema.index({ member: 1 })
+membershipSchema.index({ status: 1, endDate: 1 })
+
 module.exports = mongoose.model('Membership', membershipSchema)

@@ -12,6 +12,11 @@ const goalSchema = new mongoose.Schema(
       required: [true, 'Goal description is required'],
       trim: true,
     },
+    category: {
+      type: String,
+      enum: ['Weight Loss', 'Muscle Gain', 'Strength', 'Endurance', 'General Fitness'],
+      default: 'General Fitness',
+    },
     startWeight: {
       type: Number,
       required: true,

@@ -63,4 +63,13 @@ const deletePlan = async (req, res, next) => {
   }
 }
 
-module.exports = { listPlans, createPlan, updatePlan, deletePlan }
+const listActivePlans = async (req, res, next) => {
+  try {
+    const plans = await MembershipPlan.find({ status: 'active' }).sort({ price: 1 })
+    res.json(plans)
+  } catch (error) {
+    next(error)
+  }
+}
+
+module.exports = { listPlans, createPlan, updatePlan, deletePlan, listActivePlans }
