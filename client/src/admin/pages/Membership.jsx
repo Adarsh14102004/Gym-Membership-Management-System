@@ -161,7 +161,7 @@ const Membership = () => {
     { key: 'plan', label: 'Plan', render: (row) => row.plan?.name || '—' },
     { key: 'startDate', label: 'Start', render: (row) => new Date(row.startDate).toLocaleDateString() },
     { key: 'endDate', label: 'Expiry', render: (row) => new Date(row.endDate).toLocaleDateString() },
-    { key: 'amount', label: 'Amount', render: (row) => `$${row.amount}` },
+    { key: 'amount', label: 'Amount', render: (row) => `₹${row.amount}` },
     {
       key: 'status',
       label: 'Status',
@@ -258,7 +258,7 @@ const Membership = () => {
             <option value="">Select plan</option>
             {plans.map((p) => (
               <option key={p._id} value={p._id}>
-                {p.name} — ${p.price}/{p.duration}
+                {p.name} — {p.price}/{p.duration}
               </option>
             ))}
           </select>

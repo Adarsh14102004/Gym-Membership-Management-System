@@ -14,9 +14,9 @@ const features = [
 ]
 
 const plans = [
-  { name: 'Basic', price: '$29', period: '/mo', perks: ['Gym floor access', 'Locker room', 'Free fitness assessment'] },
-  { name: 'Pro', price: '$59', period: '/mo', perks: ['Everything in Basic', 'Group classes', '2 trainer sessions/mo'], highlight: true },
-  { name: 'Elite', price: '$99', period: '/mo', perks: ['Everything in Pro', 'Unlimited trainer sessions', 'Nutrition plan'] },
+  { name: 'Basic', price: '₹29', period: '/mo', perks: ['Gym floor access', 'Locker room', 'Free fitness assessment'] },
+  { name: 'Pro', price: '₹59', period: '/mo', perks: ['Everything in Basic', 'Group classes', '2 trainer sessions/mo'], highlight: true },
+  { name: 'Elite', price: '₹99', period: '/mo', perks: ['Everything in Pro', 'Unlimited trainer sessions', 'Nutrition plan'] },
 ]
 
 const trainers = [

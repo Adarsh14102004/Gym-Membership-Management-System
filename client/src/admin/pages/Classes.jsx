@@ -64,11 +64,18 @@ const Classes = () => {
   }, [search, category, page])
 
   useEffect(() => {
-    api
-      .get('/admin/trainers', { params: { limit: 100 } })
-      .then(({ data }) => setTrainers(data.data))
-      .catch(() => {})
-  }, [])
+    const fetchTrainers = async () => {
+      try {
+        const { data } = await api.get('/admin/trainers', { params: { all: true } })
+        setTrainers(Array.isArray(data) ? data : data.data || [])
+      } catch (error) {
+        setTrainers([])
+        showToast(error.response?.data?.message || 'Failed to load trainers', 'error')
+      }
+    }
+
+    fetchTrainers()
+  }, [showToast])
 
   const openCreate = () => {
     setEditing(null)

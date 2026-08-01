@@ -20,6 +20,7 @@ const listMembers = async (req, res, next) => {
     const [data, total] = await Promise.all([
       User.find(query)
         .populate('membershipPlan', 'name price')
+        .populate('assignedTrainer', 'name email specialization')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum),
@@ -34,7 +35,7 @@ const listMembers = async (req, res, next) => {
 
 const createMember = async (req, res, next) => {
   try {
-    const { name, email, password, phone, membershipPlan, status } = req.body
+    const { name, email, password, phone, membershipPlan, status, assignedTrainer } = req.body
 
     if (!name || !email || !password) {
       res.status(400)
@@ -47,6 +48,14 @@ const createMember = async (req, res, next) => {
       throw new Error('User already exists with this email')
     }
 
+    if (assignedTrainer) {
+      const trainer = await User.findOne({ _id: assignedTrainer, role: 'trainer' })
+      if (!trainer) {
+        res.status(400)
+        throw new Error('Selected trainer not found')
+      }
+    }
+
     const member = await User.create({
       name,
       email,
@@ -54,6 +63,7 @@ const createMember = async (req, res, next) => {
       phone,
       status,
       membershipPlan: membershipPlan || null,
+      assignedTrainer: assignedTrainer || null,
       role: 'member',
     })
     member.password = undefined
@@ -72,11 +82,21 @@ const updateMember = async (req, res, next) => {
       throw new Error('Member not found')
     }
 
-    const { name, email, phone, membershipPlan, status, password } = req.body
+    const { name, email, phone, membershipPlan, status, password, assignedTrainer } = req.body
     if (name) member.name = name
     if (email) member.email = email
     if (phone !== undefined) member.phone = phone
     if (membershipPlan !== undefined) member.membershipPlan = membershipPlan || null
+    if (assignedTrainer !== undefined) {
+      if (assignedTrainer) {
+        const trainer = await User.findOne({ _id: assignedTrainer, role: 'trainer' })
+        if (!trainer) {
+          res.status(400)
+          throw new Error('Selected trainer not found')
+        }
+      }
+      member.assignedTrainer = assignedTrainer || null
+    }
     if (status) member.status = status
     if (password) member.password = password
 

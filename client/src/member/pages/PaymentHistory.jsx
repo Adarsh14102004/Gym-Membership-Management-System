@@ -54,7 +54,7 @@ const PaymentHistory = () => {
     { key: 'paymentDate', label: 'Date', render: (row) => new Date(row.paymentDate).toLocaleDateString() },
     { key: 'plan', label: 'Plan', render: (row) => row.plan?.name || '—' },
     { key: 'transactionId', label: 'Transaction ID' },
-    { key: 'amount', label: 'Amount', render: (row) => `$${row.amount}` },
+    { key: 'amount', label: 'Amount', render: (row) => `₹${row.amount}` },
     { key: 'paymentMethod', label: 'Method' },
     {
       key: 'paymentStatus',

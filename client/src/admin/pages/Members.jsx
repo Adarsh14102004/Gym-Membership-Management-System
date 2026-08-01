@@ -5,7 +5,7 @@ import DataTable from '../components/DataTable.jsx'
 import Modal from '../components/Modal.jsx'
 import ConfirmDialog from '../components/ConfirmDialog.jsx'
 
-const emptyForm = { name: '', email: '', phone: '', password: '', status: 'active' }
+const emptyForm = { name: '', email: '', phone: '', password: '', status: 'active', assignedTrainer: '' }
 
 const Members = () => {
   const [rows, setRows] = useState([])
@@ -14,6 +14,7 @@ const Members = () => {
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
+  const [trainers, setTrainers] = useState([])
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -43,6 +44,19 @@ const Members = () => {
     return () => clearTimeout(timer)
   }, [search, status, page])
 
+  useEffect(() => {
+    const fetchTrainers = async () => {
+      try {
+        const { data } = await api.get('/admin/trainers', { params: { limit: 100 } })
+        setTrainers(data.data)
+      } catch (error) {
+        showToast(error.response?.data?.message || 'Failed to load trainers', 'error')
+      }
+    }
+
+    fetchTrainers()
+  }, [])
+
   const openCreate = () => {
     setEditing(null)
     setForm(emptyForm)
@@ -51,7 +65,14 @@ const Members = () => {
 
   const openEdit = (row) => {
     setEditing(row)
-    setForm({ name: row.name, email: row.email, phone: row.phone || '', password: '', status: row.status })
+    setForm({
+      name: row.name,
+      email: row.email,
+      phone: row.phone || '',
+      password: '',
+      status: row.status,
+      assignedTrainer: row.assignedTrainer?._id || row.assignedTrainer || '',
+    })
     setModalOpen(true)
   }
 
@@ -98,6 +119,7 @@ const Members = () => {
     { key: 'email', label: 'Email' },
     { key: 'phone', label: 'Phone', render: (row) => row.phone || '—' },
     { key: 'plan', label: 'Plan', render: (row) => row.membershipPlan?.name || 'None' },
+    { key: 'assignedTrainer', label: 'Assigned Trainer', render: (row) => row.assignedTrainer?.name || 'Unassigned' },
     {
       key: 'status',
       label: 'Status',
@@ -203,6 +225,19 @@ const Members = () => {
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
+          </select>
+          <select
+            name="assignedTrainer"
+            value={form.assignedTrainer}
+            onChange={handleChange}
+            className="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-sm text-white outline-none focus:border-accent-red"
+          >
+            <option value="">No assigned trainer</option>
+            {trainers.map((trainer) => (
+              <option key={trainer._id} value={trainer._id}>
+                {trainer.name}
+              </option>
+            ))}
           </select>
           <button
             type="submit"

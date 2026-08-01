@@ -2,7 +2,7 @@ const User = require('../models/User')
 
 const listTrainers = async (req, res, next) => {
   try {
-    const { search = '', status = '', page = 1, limit = 8 } = req.query
+    const { search = '', status = '', page = 1, limit = 8, all } = req.query
     const query = { role: 'trainer' }
 
     if (search) {
@@ -14,7 +14,7 @@ const listTrainers = async (req, res, next) => {
     if (status) query.status = status
 
     const pageNum = Math.max(1, Number(page) || 1)
-    const limitNum = Math.max(1, Number(limit) || 8)
+    const limitNum = all === 'true' ? 0 : Math.max(1, Number(limit) || 8)
     const skip = (pageNum - 1) * limitNum
 
     const [data, total] = await Promise.all([
@@ -22,7 +22,7 @@ const listTrainers = async (req, res, next) => {
       User.countDocuments(query),
     ])
 
-    res.json({ data, total, page: pageNum, pages: Math.ceil(total / limitNum) || 1 })
+    res.json({ data, total, page: pageNum, pages: all === 'true' ? 1 : Math.ceil(total / limitNum) || 1 })
   } catch (error) {
     next(error)
   }
