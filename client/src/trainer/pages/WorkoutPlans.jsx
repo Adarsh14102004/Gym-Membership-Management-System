@@ -169,7 +169,6 @@ const WorkoutPlans = () => {
         <button
           type="button"
           onClick={openCreate}
-          disabled={members.length === 0 || exercises.length === 0}
           className="rounded-full bg-accent-red px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent-red/30 transition-transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
         >
           Assign Workout
