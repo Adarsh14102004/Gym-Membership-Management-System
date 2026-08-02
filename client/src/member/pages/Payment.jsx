@@ -111,7 +111,7 @@ const Payment = () => {
                 )}
                 <h3 className="mt-3 text-lg font-bold text-white">{plan.name}</h3>
                 <p className="mt-1 text-2xl font-extrabold text-white">
-                  ${plan.price} <span className="text-sm font-normal capitalize text-gray-400">/ {plan.duration}</span>
+                  ₹{plan.price} <span className="text-sm font-normal capitalize text-gray-400">/ {plan.duration}</span>
                 </p>
                 <ul className="mt-3 space-y-1 text-xs text-gray-400">
                   {plan.features?.slice(0, 3).map((f, i) => (
@@ -156,7 +156,7 @@ const Payment = () => {
               disabled={paying || !selectedPlan}
               className="w-full rounded-xl bg-accent-red py-3 text-sm font-semibold text-white disabled:opacity-60"
             >
-              {paying ? 'Processing payment...' : `Pay $${plans.find((p) => p._id === selectedPlan)?.price ?? ''}`}
+              {paying ? 'Processing payment...' : `Pay ₹${plans.find((p) => p._id === selectedPlan)?.price ?? ''}`}
             </button>
           </motion.form>
         </>
