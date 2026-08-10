@@ -13,6 +13,7 @@ const {
   checkExpiry,
 } = require('../controllers/membershipController')
 const { markAttendanceByQr, getTodayAdminAttendance, getAllAttendance } = require('../controllers/attendanceController')
+const { listContacts, markContactRead, deleteContact } = require('../controllers/contactController')
 
 const router = express.Router()
 
@@ -38,5 +39,9 @@ router.get('/memberships/check-expiry', checkExpiry)
 router.get('/attendance', getAllAttendance)
 router.get('/attendance/today', getTodayAdminAttendance)
 router.post('/attendance/scan', markAttendanceByQr)
+
+router.get('/contacts', listContacts)
+router.put('/contacts/:id/read', markContactRead)
+router.delete('/contacts/:id', deleteContact)
 
 module.exports = router

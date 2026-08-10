@@ -29,7 +29,7 @@ Public sign-up always creates a **member** account — trainer and admin account
 - In-app chat with assigned members
 
 ### Member
-- Browse and purchase/renew membership plans (mock payment flow with receipts)
+- Browse and purchase/renew membership plans — real Razorpay checkout (with a built-in demo/offline fallback when no gateway keys are configured), receipts and payment history
 - Book/cancel group classes; view booking history
 - QR-code self check-in and attendance history
 - View assigned workout and diet plans
@@ -40,10 +40,16 @@ Public sign-up always creates a **member** account — trainer and admin account
 
 ### Cross-cutting
 - JWT authentication with role-based access control (admin / trainer / member)
+- Self-service password reset (email a time-limited, single-use reset link)
+- Public contact form with an admin inbox (`Admin → Contacts`)
+- Razorpay payment gateway — signature-verified checkout, server-derived pricing, demo fallback when unconfigured
 - Real-time chat via Socket.IO
-- Email notifications (membership expiry, renewal, booking confirmation/cancellation, announcements) — gracefully disabled if SMTP isn't configured
-- Rate-limited authentication and AI endpoints
+- Email notifications (membership expiry, renewal, booking confirmation/cancellation, password reset, contact form, announcements) — gracefully disabled if SMTP isn't configured
+- **Scheduled membership-expiry reminder** (`server/cron/membershipCron.js`, daily via `node-cron`) — proactively notifies members even if they never open the app, on top of the reactive check that already ran on page load
+- Security hardening: Helmet security headers, CORS allow-listed to `CLIENT_URL`, NoSQL-injection input sanitization, `express-validator` request validation on public-facing endpoints, rate-limited auth/contact/AI endpoints
 - Secure file uploads (image type + size validated) for progress photos
+
+See [docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for the full REST API reference, [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) for the data model, and [docs/DEPLOYMENT_VERCEL.md](docs/DEPLOYMENT_VERCEL.md) to deploy (Vercel frontend + Railway/Render backend).
 
 ## Modules Explanation
 
@@ -65,7 +71,7 @@ Public sign-up always creates a **member** account — trainer and admin account
 
 **Frontend:** React 19, React Router 7, Vite, Tailwind CSS 4, Framer Motion, Chart.js / react-chartjs-2, Axios, Socket.IO client
 
-**Backend:** Node.js, Express 5, MongoDB with Mongoose 9, JWT (jsonwebtoken), bcryptjs, Socket.IO, Multer (file uploads), PDFKit + ExcelJS (reports), Nodemailer (email), express-rate-limit, Anthropic Claude SDK (AI features)
+**Backend:** Node.js, Express 5, MongoDB with Mongoose 9, JWT (jsonwebtoken), bcryptjs, Socket.IO, Multer (file uploads), PDFKit + ExcelJS (reports), Nodemailer (email), Razorpay (payments), node-cron (scheduled jobs), Helmet (security headers), express-validator, express-rate-limit, Anthropic Claude SDK (AI features)
 
 **Database:** MongoDB
 
@@ -90,16 +96,17 @@ Gym Membership Management System/
 │
 └── server/                        # Express backend
     ├── config/                    # db.js (Mongo connection)
-    ├── controllers/                # One file per resource (auth, admin, trainer, member, progress, ai, analytics, report, notification...)
-    ├── middleware/                 # authMiddleware (JWT + role guard), uploadMiddleware (multer), errorMiddleware
+    ├── controllers/                # One file per resource (auth, admin, trainer, member, progress, ai, analytics, report, notification, contact...)
+    ├── middleware/                 # authMiddleware (JWT + role guard), uploadMiddleware (multer), validateMiddleware (express-validator), sanitizeMiddleware (NoSQL-injection guard), errorMiddleware
     ├── models/                     # Mongoose schemas
     ├── routes/                     # One router per resource, mounted in app.js
     ├── services/                   # aiService, analyticsService, emailService, reportService
+    ├── cron/                       # membershipCron — daily expiry-reminder sweep (node-cron)
     ├── utils/                      # aiFormatter
     ├── uploads/                    # Uploaded progress photos (served at /uploads)
     ├── socket.js                   # Socket.IO auth + chat event handling
     ├── app.js                      # Express app, middleware & route mounting
-    └── server.js                   # HTTP server bootstrap, DB connect, Socket.IO init
+    └── server.js                   # HTTP server bootstrap, DB connect, Socket.IO init, cron start
 ```
 
 ## Database Overview
@@ -122,6 +129,7 @@ Key MongoDB collections (see `server/models/`):
 | `AIHistory` | Stored AI interactions (workout/diet/bmi/prediction/chat) | `user` → User |
 | `Notification` | In-app notifications, role-agnostic | `user` → User |
 | `Message` | Chat messages | sender/recipient → User |
+| `Contact` | Public contact-form submissions | — |
 
 Indexes are set on the high-traffic query paths: `User.role`, `User.assignedTrainer`, `Notification{user, createdAt}`, `ProgressLog{member, createdAt}` / `{trainer, status}`, `Payment{member}` / `{paymentDate}`, `Class{date, startTime}` / `{trainer}`, `Membership{member}` / `{status, endDate}`, `Attendance{member, date}` (unique) / `{date}`, `Booking{member, class}` (unique, partial).
 
@@ -170,24 +178,36 @@ cd client && npm run build   # outputs client/dist
 
 ## Environment Setup
 
-Create `server/.env`:
+Create `server/.env` (see `server/.env.example` for the full annotated list):
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/gym-management
 JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRE=30d
+CLIENT_URL=http://localhost:5173
 
 # Optional — AI Fitness Assistant (workout/diet/BMI/prediction/chat generation)
 # Without this, the app still runs; AI endpoints return a graceful 503
 ANTHROPIC_API_KEY=
 
-# Optional — outgoing email (expiry reminders, booking confirmations, announcements)
+# Optional — outgoing email (expiry reminders, booking confirmations,
+# password reset, contact form, announcements)
 # Without these, emails are silently skipped; in-app notifications still work
 SMTP_HOST=
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
 SMTP_FROM=
+ADMIN_NOTIFICATION_EMAIL=
+
+# Optional — Razorpay payment gateway; without these, checkout automatically
+# falls back to the built-in demo/offline payment flow
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+
+# Optional — membership expiry-reminder cron
+EXPIRY_REMINDER_DAYS=3
+MEMBERSHIP_CRON_SCHEDULE=0 8 * * *
 ```
 
 Create `client/.env` (optional — defaults to `http://localhost:5000/api`):
@@ -201,18 +221,29 @@ VITE_API_URL=http://localhost:5000/api
 | `MONGO_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Signing secret for auth tokens — use a long random value |
 | `JWT_EXPIRE` | No (defaults `30d`) | Token lifetime |
+| `CLIENT_URL` | No (defaults to `http://localhost:5173`) | Comma-separated frontend origin(s) — used for CORS allow-listing and password-reset email links |
 | `ANTHROPIC_API_KEY` | No | Enables live AI generation; omitted → graceful 503 on AI endpoints only |
 | `SMTP_HOST/PORT/USER/PASS/FROM` | No | Enables outgoing email; omitted → emails silently skipped, in-app notifications unaffected |
+| `ADMIN_NOTIFICATION_EMAIL` | No | Where contact-form submissions are emailed; falls back to `SMTP_FROM`/`SMTP_USER` |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | No | Enables real Razorpay checkout; omitted → member checkout uses the demo/offline flow |
+| `EXPIRY_REMINDER_DAYS` | No (defaults `3`) | How many days before expiry the reminder cron notifies a member |
+| `MEMBERSHIP_CRON_SCHEDULE` | No (defaults `0 8 * * *`) | Cron expression for the daily expiry-reminder sweep |
 | `VITE_API_URL` (client) | No (defaults to `http://localhost:5000/api`) | Where the frontend points its API calls |
+
+## Deployment
+
+See **[docs/DEPLOYMENT_VERCEL.md](docs/DEPLOYMENT_VERCEL.md)** for the full
+walkthrough: MongoDB Atlas → backend on Railway/Render (needed for the
+persistent Socket.IO connection and the cron job) → frontend on Vercel
+(`client/vercel.json` is already set up for SPA routing).
 
 ## Future Scope
 
 - Push notifications (web push / mobile) alongside in-app + email
-- Payment gateway integration (Stripe/Razorpay) replacing the mock payment flow
 - Trainer availability calendar and class waitlists
 - Mobile app (React Native) reusing the existing REST API
 - Multi-gym / multi-branch support with branch-scoped admin roles
-- Automated cron-based membership expiry sweep and scheduled report emails
+- Scheduled report emails (weekly/monthly analytics digest to admins)
 - Unit/integration test suite (Jest + Supertest / React Testing Library)
 
 ## Screenshots

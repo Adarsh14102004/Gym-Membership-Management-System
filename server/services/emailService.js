@@ -84,6 +84,25 @@ const templates = {
     subject: `Announcement: ${title}`,
     html: wrapTemplate(title, `<p>Hi ${name},</p><p>${message}</p>`),
   }),
+
+  passwordReset: ({ name, resetUrl }) => ({
+    subject: 'Reset your FITZONE password',
+    html: wrapTemplate(
+      'Password Reset Requested',
+      `<p>Hi ${name},</p><p>We received a request to reset your password. Click the button below to choose a new one. This link expires in 30 minutes.</p>
+       <p style="margin: 24px 0;"><a href="${resetUrl}" style="background:#ff3b30;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Reset Password</a></p>
+       <p style="color:#9ca3af;">If you didn't request this, you can safely ignore this email — your password will remain unchanged.</p>
+       <p style="color:#6b7280; font-size:12px; word-break:break-all;">Or paste this link into your browser: ${resetUrl}</p>`
+    ),
+  }),
+
+  contactFormReceived: ({ name, email, subject, message }) => ({
+    subject: `New contact form message: ${subject}`,
+    html: wrapTemplate(
+      'New Contact Form Submission',
+      `<p><strong>From:</strong> ${name} (${email})</p><p><strong>Subject:</strong> ${subject}</p><p>${message}</p>`
+    ),
+  }),
 }
 
 const sendTemplatedEmail = async (templateName, to, data) => {

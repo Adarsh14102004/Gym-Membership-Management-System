@@ -6,17 +6,31 @@ import { useToast } from '../../context/ToastContext.jsx'
 import Skeleton from '../../components/Skeleton.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
 
-const inputClass =
-  'w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-accent-red'
+const RAZORPAY_SCRIPT_SRC = 'https://checkout.razorpay.com/v1/checkout.js'
 
-const emptyCard = { cardName: '', cardNumber: '', expiry: '', cvv: '' }
+// Loads the Razorpay Checkout script once and caches the in-flight promise so
+// repeated calls (e.g. re-renders) don't inject the script twice.
+let razorpayScriptPromise = null
+const loadRazorpayScript = () => {
+  if (window.Razorpay) return Promise.resolve(true)
+  if (razorpayScriptPromise) return razorpayScriptPromise
+
+  razorpayScriptPromise = new Promise((resolve) => {
+    const script = document.createElement('script')
+    script.src = RAZORPAY_SCRIPT_SRC
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.body.appendChild(script)
+  })
+  return razorpayScriptPromise
+}
 
 const Payment = () => {
   const [plans, setPlans] = useState([])
   const [membership, setMembership] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedPlan, setSelectedPlan] = useState(null)
-  const [card, setCard] = useState(emptyCard)
+  const [gatewayConfigured, setGatewayConfigured] = useState(false)
   const [paying, setPaying] = useState(false)
   const { showToast } = useToast()
   const navigate = useNavigate()
@@ -24,9 +38,14 @@ const Payment = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const [plansRes, membershipRes] = await Promise.all([api.get('/member/plans'), api.get('/member/membership')])
+        const [plansRes, membershipRes, gatewayRes] = await Promise.all([
+          api.get('/member/plans'),
+          api.get('/member/membership'),
+          api.get('/payment/gateway-status'),
+        ])
         setPlans(plansRes.data)
         setMembership(membershipRes.data)
+        setGatewayConfigured(Boolean(gatewayRes.data?.razorpayConfigured))
         const current = plansRes.data.find((p) => p.name === membershipRes.data.planName)
         setSelectedPlan(current?._id || plansRes.data[0]?._id || null)
       } catch (error) {
@@ -38,28 +57,61 @@ const Payment = () => {
     load()
   }, [])
 
-  const handleCardChange = (e) => setCard((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-
-  const handlePay = async (e) => {
-    e.preventDefault()
-    if (!selectedPlan) return
-    if (!/^\d{16}$/.test(card.cardNumber.replace(/\s/g, ''))) {
-      showToast('Enter a valid 16-digit card number', 'error')
-      return
-    }
-    if (!/^\d{2}\/\d{2}$/.test(card.expiry)) {
-      showToast('Enter expiry as MM/YY', 'error')
-      return
-    }
-    if (!/^\d{3,4}$/.test(card.cvv)) {
-      showToast('Enter a valid CVV', 'error')
-      return
-    }
-
+  const handleRazorpayPay = async () => {
     setPaying(true)
     try {
-      const { data } = await api.post('/payment', { plan: selectedPlan })
-      showToast('Payment successful!', 'success')
+      const scriptLoaded = await loadRazorpayScript()
+      if (!scriptLoaded) {
+        showToast('Could not load the payment gateway. Check your connection and try again.', 'error')
+        return
+      }
+
+      const { data: order } = await api.post('/payment/razorpay/order', { plan: selectedPlan })
+
+      const razorpay = new window.Razorpay({
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.orderId,
+        name: 'FITZONE Gym',
+        description: `${order.plan.name} membership`,
+        theme: { color: '#ff3b30' },
+        handler: async (response) => {
+          try {
+            const { data } = await api.post('/payment/razorpay/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              plan: selectedPlan,
+            })
+            showToast('Payment successful!', 'success')
+            navigate('/member/payment/success', { state: data })
+          } catch (error) {
+            showToast(error.response?.data?.message || 'Payment verification failed', 'error')
+          } finally {
+            setPaying(false)
+          }
+        },
+        modal: { ondismiss: () => setPaying(false) },
+      })
+
+      razorpay.on('payment.failed', () => {
+        showToast('Payment failed. Please try again.', 'error')
+        setPaying(false)
+      })
+
+      razorpay.open()
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Could not start checkout', 'error')
+      setPaying(false)
+    }
+  }
+
+  const handleDemoPay = async () => {
+    setPaying(true)
+    try {
+      const { data } = await api.post('/payment/demo', { plan: selectedPlan })
+      showToast('Demo payment successful!', 'success')
       navigate('/member/payment/success', { state: data })
     } catch (error) {
       showToast(error.response?.data?.message || 'Payment failed', 'error')
@@ -82,13 +134,19 @@ const Payment = () => {
     )
   }
 
+  const selectedPlanDoc = plans.find((p) => p._id === selectedPlan)
+
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-white">
           {membership?.status === 'active' ? 'Renew Membership' : 'Choose a Membership Plan'}
         </h2>
-        <p className="mt-1 text-sm text-gray-400">Dummy checkout — no real charge is made.</p>
+        <p className="mt-1 text-sm text-gray-400">
+          {gatewayConfigured
+            ? 'Secure checkout powered by Razorpay.'
+            : 'Payment gateway not yet configured — using demo checkout (no real charge is made).'}
+        </p>
       </div>
 
       {plans.length === 0 ? (
@@ -122,43 +180,30 @@ const Payment = () => {
             ))}
           </div>
 
-          <motion.form
+          <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            onSubmit={handlePay}
             className="max-w-lg space-y-4 rounded-2xl border border-white/10 bg-surface/60 p-6"
           >
-            <h3 className="text-sm font-semibold text-white">Dummy Card Details</h3>
-            <input
-              name="cardName"
-              value={card.cardName}
-              onChange={handleCardChange}
-              required
-              placeholder="Cardholder Name"
-              className={inputClass}
-            />
-            <input
-              name="cardNumber"
-              value={card.cardNumber}
-              onChange={handleCardChange}
-              required
-              maxLength={19}
-              placeholder="Card Number (1234 5678 9012 3456)"
-              className={inputClass}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <input name="expiry" value={card.expiry} onChange={handleCardChange} required placeholder="MM/YY" className={inputClass} />
-              <input name="cvv" value={card.cvv} onChange={handleCardChange} required placeholder="CVV" className={inputClass} />
+            <h3 className="text-sm font-semibold text-white">Checkout</h3>
+            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-base px-4 py-3 text-sm">
+              <span className="text-gray-400">Plan</span>
+              <span className="font-semibold text-white">{selectedPlanDoc?.name || '—'}</span>
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-white/10 bg-base px-4 py-3 text-sm">
+              <span className="text-gray-400">Amount</span>
+              <span className="font-semibold text-white">₹{selectedPlanDoc?.price ?? '—'}</span>
             </div>
 
             <button
-              type="submit"
+              type="button"
+              onClick={gatewayConfigured ? handleRazorpayPay : handleDemoPay}
               disabled={paying || !selectedPlan}
-              className="w-full rounded-xl bg-accent-red py-3 text-sm font-semibold text-white disabled:opacity-60"
+              className="w-full rounded-xl bg-accent-red py-3 text-sm font-semibold text-white shadow-lg shadow-accent-red/30 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
-              {paying ? 'Processing payment...' : `Pay ₹${plans.find((p) => p._id === selectedPlan)?.price ?? ''}`}
+              {paying ? 'Processing payment...' : `Pay ₹${selectedPlanDoc?.price ?? ''}`}
             </button>
-          </motion.form>
+          </motion.div>
         </>
       )}
     </div>

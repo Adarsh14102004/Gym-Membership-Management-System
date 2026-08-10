@@ -10,6 +10,9 @@ import MemberLayout from '../member/layouts/MemberLayout.jsx'
 const Home = lazy(() => import('../pages/Home.jsx'))
 const Login = lazy(() => import('../pages/Login.jsx'))
 const Register = lazy(() => import('../pages/Register.jsx'))
+const ForgotPassword = lazy(() => import('../pages/ForgotPassword.jsx'))
+const ResetPassword = lazy(() => import('../pages/ResetPassword.jsx'))
+const Contact = lazy(() => import('../pages/Contact.jsx'))
 const Dashboard = lazy(() => import('../pages/Dashboard.jsx'))
 const NotFound = lazy(() => import('../pages/NotFound.jsx'))
 
@@ -62,6 +65,9 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/contact" element={<Contact />} />
           <Route
             path="/dashboard"
             element={

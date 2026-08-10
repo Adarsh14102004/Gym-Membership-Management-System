@@ -222,6 +222,38 @@ const notifyExpiringSoon = async (memberId, summary) => {
   }
 }
 
+// Scheduled sweep (see server/cron/membershipCron.js) — proactively notifies
+// every member whose membership is expiring soon, instead of waiting for them
+// to open the "My Membership" page. Reuses notifyExpiringSoon's once-per-day
+// dedup so a cron misfire never double-sends.
+const sweepExpiryReminders = async () => {
+  const reminderDays = Number(process.env.EXPIRY_REMINDER_DAYS) || 3
+  await autoExpire()
+
+  const now = new Date()
+  const windowEnd = new Date(now.getTime() + reminderDays * 24 * 60 * 60 * 1000)
+
+  const memberships = await Membership.find({
+    status: 'active',
+    endDate: { $gte: now, $lte: windowEnd },
+  }).populate('plan')
+
+  let notified = 0
+  for (const membership of memberships) {
+    if (!membership.plan) continue
+    const daysRemaining = Math.ceil((membership.endDate - now) / (1000 * 60 * 60 * 24))
+    await notifyExpiringSoon(membership.member, {
+      planName: membership.plan.name,
+      expiryDate: membership.endDate,
+      daysRemaining,
+      status: membership.status,
+    })
+    notified += 1
+  }
+
+  return { checked: memberships.length, notified }
+}
+
 const getMyMembership = async (req, res, next) => {
   try {
     const summary = await getMembershipSummary(req.user._id)
@@ -276,4 +308,5 @@ module.exports = {
   getMembershipSummary,
   getMyMembership,
   purchaseOrRenewMembership,
+  sweepExpiryReminders,
 }

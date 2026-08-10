@@ -35,6 +35,7 @@ const Footer = () => {
           <ul className="space-y-2 text-sm text-gray-400">
             <li>hello@fitzone.com</li>
             <li>+1 (555) 010-2024</li>
+            <li><Link to="/contact" className="hover:text-accent-yellow">Send us a message</Link></li>
           </ul>
         </div>
       </div>
